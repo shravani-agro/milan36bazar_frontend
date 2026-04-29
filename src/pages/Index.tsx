@@ -584,7 +584,7 @@ function AdminModal({ modal, users, markets, userById, onClose, onSaved }: { mod
   async function submit(table: string, payload: Record<string, unknown>, id?: string) {
     setBusy(true);
     const request = id ? supabase.from(table as never).update(payload as never).eq("id", id as never) : supabase.from(table as never).insert(payload as never);
-    const { error } = await request as never as Promise<{ error: { message: string } | null }>;
+    const { error } = await (request as unknown as Promise<{ error: { message: string } | null }>);
     setBusy(false);
     if (error) toast.error(error.message);
     else { toast.success("Saved successfully."); onSaved(); }
@@ -594,12 +594,12 @@ function AdminModal({ modal, users, markets, userById, onClose, onSaved }: { mod
     const type = String(form.get("transaction_type"));
     const amount = Number(form.get("amount"));
     const reason = String(form.get("reason") || "Admin adjustment");
-    if (!amount || amount <= 0) return toast.error("Enter a valid amount.");
+    if (!amount || amount <= 0) { toast.error("Enter a valid amount."); return; }
     const after = ["deduct", "withdraw", "bid"].includes(type) ? item.balance - amount : item.balance + amount;
-    if (after < 0) return toast.error("Insufficient balance.");
+    if (after < 0) { toast.error("Insufficient balance."); return; }
     setBusy(true);
     const { error: updateError } = await (supabase.from("app_users" as never).update({ balance: after } as never).eq("id", item.id as never) as never as Promise<{ error: { message: string } | null }>);
-    if (updateError) { setBusy(false); return toast.error(updateError.message); }
+    if (updateError) { setBusy(false); toast.error(updateError.message); return; }
     const { error: trxError } = await (supabase.from("balance_transactions" as never).insert({ app_user_id: item.id, transaction_type: type, amount, reason, balance_before: item.balance, balance_after: after } as never) as never as Promise<{ error: { message: string } | null }>);
     setBusy(false);
     if (trxError) toast.error(trxError.message);
