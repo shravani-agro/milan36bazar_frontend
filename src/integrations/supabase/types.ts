@@ -389,41 +389,7 @@ export type Database = {
       }
     }
     Functions: {
-      adjust_app_user_balance: {
-        Args: {
-          _amount: number
-          _app_user_id: string
-          _reason?: string
-          _transaction_type: Database["public"]["Enums"]["balance_transaction_type"]
-        }
-        Returns: {
-          balance: number
-          created_at: string
-          id: string
-          name: string
-          phone: string
-          status: Database["public"]["Enums"]["user_status"]
-          total_bonus: number
-          total_game_amount: number
-          total_withdraw: number
-          total_won: number
-          updated_at: string
-        }
-        SetofOptions: {
-          from: "*"
-          to: "app_users"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
-      has_any_admin: { Args: never; Returns: boolean }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
+      [_ in never]: never
     }
     Enums: {
       app_role: "admin"
