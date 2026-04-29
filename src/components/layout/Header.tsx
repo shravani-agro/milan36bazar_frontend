@@ -29,29 +29,44 @@ export function Header({
 }) {
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur">
-      <div className="flex min-h-16 flex-wrap items-center gap-3 px-4 py-3 lg:px-6">
-        <button className="icon-button lg:hidden" onClick={() => setSidebarOpen(!sidebarOpen)}>
+      <div className="flex min-h-[4rem] items-center gap-2 px-3 py-2 lg:px-6">
+        <button 
+          className="icon-button lg:hidden" 
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label="Toggle Menu"
+        >
           <Menu />
         </button>
-        <div className="min-w-0 flex-1">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Admin Dashboard</p>
-          <h1 className="truncate text-xl font-semibold md:text-2xl">
+        
+        <div className="min-w-0 flex-1 lg:flex-none lg:mr-4">
+          <p className="hidden text-[10px] uppercase tracking-wider text-muted-foreground sm:block">
+            Dashboard
+          </p>
+          <h1 className="truncate text-lg font-bold md:text-xl">
             {navItems.find((item: any) => item.id === section)?.label}
           </h1>
         </div>
-        <GlobalFilters 
-          filters={filters} 
-          markets={markets} 
-          section={section} 
-          updateFilter={updateFilter} 
-          reset={resetFilters} 
-        />
-        <button className="icon-button" onClick={loadAll}>
-          <RefreshCw className={loading ? "animate-spin" : ""} />
-        </button>
-        <button className="btn-secondary" onClick={handleLogout}>
-          <LogOut className="h-4 w-4" /> Logout
-        </button>
+
+        <div className="flex flex-1 items-center justify-end gap-1.5 md:gap-3">
+          <GlobalFilters 
+            filters={filters} 
+            markets={markets} 
+            section={section} 
+            updateFilter={updateFilter} 
+            reset={resetFilters} 
+          />
+          
+          <div className="h-6 w-[1px] bg-border mx-1 hidden sm:block" />
+
+          <button className="icon-button" onClick={loadAll} title="Refresh Data">
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+          </button>
+          
+          <button className="btn-secondary h-9 px-3 sm:px-4" onClick={handleLogout} title="Logout">
+            <LogOut className="h-4 w-4" />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        </div>
       </div>
     </header>
   );
