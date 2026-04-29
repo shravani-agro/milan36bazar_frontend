@@ -103,3 +103,228 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer base {
+  :root {
+    --background: 222 47% 8%;
+    --foreground: 210 40% 96%;
+    --card: 222 39% 11%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 39% 11%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 154 72% 46%;
+    --primary-foreground: 222 47% 8%;
+    --secondary: 225 28% 18%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 224 30% 15%;
+    --muted-foreground: 215 20% 68%;
+    --accent: 31 90% 56%;
+    --accent-foreground: 222 47% 8%;
+    --destructive: 0 75% 58%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 224 28% 22%;
+    --input: 224 28% 18%;
+    --ring: 154 72% 46%;
+    --success: 154 72% 46%;
+    --warning: 31 90% 56%;
+    --danger: 0 75% 58%;
+    --panel: 222 39% 11%;
+    --panel-strong: 224 35% 14%;
+  }
+
+  body {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+}
+
+@layer components {
+  .auth-screen {
+    @apply grid place-items-center p-6;
+    background:
+      radial-gradient(circle at 20% 10%, hsl(var(--primary) / 0.18), transparent 28rem),
+      radial-gradient(circle at 80% 20%, hsl(var(--accent) / 0.16), transparent 24rem),
+      hsl(var(--background));
+  }
+
+  .dashboard-sidebar {
+    @apply sticky top-0 hidden h-screen shrink-0 border-r border-border bg-card/95 text-card-foreground transition-all duration-200 lg:block;
+  }
+
+  .dashboard-panel {
+    @apply rounded-md border border-border bg-card text-card-foreground shadow-2xl shadow-background/30;
+  }
+
+  .nav-item {
+    @apply flex h-11 w-full items-center gap-3 rounded-md px-3 text-sm text-muted-foreground transition hover:bg-secondary hover:text-foreground;
+  }
+
+  .nav-item-active {
+    @apply bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground;
+  }
+
+  .icon-button {
+    @apply grid h-9 w-9 shrink-0 place-items-center rounded-md border border-border bg-secondary text-secondary-foreground transition hover:border-primary hover:text-primary disabled:opacity-50;
+  }
+
+  .icon-button svg {
+    @apply h-4 w-4;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-compact {
+    @apply inline-flex h-10 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
+  .btn-secondary,
+  .btn-compact {
+    @apply border border-border bg-secondary text-secondary-foreground hover:border-primary hover:text-primary;
+  }
+
+  .btn-compact {
+    @apply h-8 px-3 text-xs;
+  }
+
+  .metric-card {
+    @apply dashboard-panel flex min-h-32 flex-col gap-3 p-5 transition hover:border-primary;
+  }
+
+  .metric-card span {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .metric-card strong {
+    @apply text-2xl font-semibold text-foreground;
+  }
+
+  .search-shell {
+    @apply flex h-10 min-w-56 items-center gap-2 rounded-md border border-border bg-secondary px-3;
+  }
+
+  .search-shell input {
+    @apply min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground;
+  }
+
+  .filter-control,
+  .field-input {
+    @apply h-10 rounded-md border border-border bg-secondary px-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20;
+  }
+
+  .field-label {
+    @apply grid gap-2 text-sm font-medium text-foreground;
+  }
+
+  .tab-button {
+    @apply h-9 rounded-md text-sm text-muted-foreground transition;
+  }
+
+  .tab-button-active {
+    @apply bg-card text-foreground shadow-sm;
+  }
+
+  .table-scroll {
+    @apply w-full overflow-x-auto;
+  }
+
+  .data-table {
+    @apply w-full min-w-[900px] border-collapse text-sm;
+  }
+
+  .data-table th {
+    @apply border-b border-border px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground;
+  }
+
+  .data-table td {
+    @apply border-b border-border/70 px-3 py-3 align-middle text-muted-foreground;
+  }
+
+  .data-table tbody tr:hover {
+    @apply bg-secondary/50;
+  }
+
+  .row-actions {
+    @apply flex items-center gap-2;
+  }
+
+  .danger-action {
+    @apply hover:border-destructive hover:text-destructive;
+  }
+
+  .status-badge {
+    @apply inline-flex rounded-md px-2 py-1 text-xs font-semibold capitalize;
+  }
+
+  .status-success {
+    background: hsl(var(--success) / 0.16);
+    color: hsl(var(--success));
+  }
+
+  .status-danger {
+    background: hsl(var(--danger) / 0.16);
+    color: hsl(var(--danger));
+  }
+
+  .status-neutral {
+    @apply bg-secondary text-muted-foreground;
+  }
+
+  .modal-backdrop {
+    @apply fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-background/80 p-4 backdrop-blur-sm;
+  }
+
+  .modal-card {
+    @apply max-h-[90vh] w-full max-w-3xl overflow-y-auto;
+  }
+
+  .digit-bar {
+    @apply grid gap-2 text-center text-xs text-muted-foreground;
+  }
+
+  .digit-track {
+    @apply flex h-40 items-end rounded-md bg-secondary p-1;
+  }
+
+  .digit-track span,
+  .progress-track span {
+    @apply block rounded-sm bg-primary;
+  }
+
+  .digit-track span {
+    @apply w-full;
+  }
+
+  .progress-track {
+    @apply h-2 overflow-hidden rounded-md bg-secondary;
+  }
+
+  .progress-track span {
+    @apply h-full;
+  }
+
+  .stat-row,
+  .list-row {
+    @apply flex items-center justify-between gap-3 rounded-md border border-border bg-secondary/40 p-3;
+  }
+
+  .stat-row span,
+  .list-row p {
+    @apply font-medium text-foreground;
+  }
+
+  .stat-row small,
+  .list-row span {
+    @apply text-xs text-muted-foreground;
+  }
+
+  .list-row {
+    @apply justify-start;
+  }
+
+  .empty-state {
+    @apply grid min-h-32 place-items-center gap-2 rounded-md border border-dashed border-border text-sm text-muted-foreground;
+  }
+}
