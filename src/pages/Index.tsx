@@ -399,7 +399,7 @@ function App() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
-        <aside className={`dashboard-sidebar ${sidebarOpen ? "w-72" : "w-20"}`}>
+        <aside className={`dashboard-sidebar ${sidebarOpen ? "fixed inset-y-0 z-40 block w-72 lg:sticky lg:w-72" : "hidden w-20 lg:sticky lg:block"}`}>
           <div className="flex h-16 items-center justify-between border-b border-border px-4">
             <div className="flex items-center gap-3 overflow-hidden">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-primary text-primary-foreground"><Crown className="h-5 w-5" /></div>

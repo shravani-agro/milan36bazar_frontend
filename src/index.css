@@ -147,7 +147,7 @@ All colors MUST be HSL.
   }
 
   .dashboard-sidebar {
-    @apply sticky top-0 hidden h-screen shrink-0 border-r border-border bg-card/95 text-card-foreground transition-all duration-200 lg:block;
+    @apply top-0 h-screen shrink-0 border-r border-border bg-card/95 text-card-foreground transition-all duration-200;
   }
 
   .dashboard-panel {
@@ -190,7 +190,7 @@ All colors MUST be HSL.
   }
 
   .metric-card {
-    @apply dashboard-panel flex min-h-32 flex-col gap-3 p-5 transition hover:border-primary;
+    @apply flex min-h-32 flex-col gap-3 rounded-md border border-border bg-card p-5 text-card-foreground shadow-2xl shadow-background/30 transition hover:border-primary;
   }
 
   .metric-card span {
