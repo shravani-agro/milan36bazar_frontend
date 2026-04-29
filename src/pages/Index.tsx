@@ -13,7 +13,7 @@ import {
   LogOut,
   Menu,
   RefreshCw,
-  Search,
+
   ShieldCheck,
   Trophy,
   Users,
@@ -33,14 +33,13 @@ import { Header } from "@/components/layout/Header";
 type Section = "dashboard" | "users" | "markets" | "results" | "wins" | "records" | "reports" | "commission";
 
 type Filters = {
-  search: string;
   status: string;
   marketId: string;
   date: string;
 };
 
 const today = new Date().toISOString().slice(0, 10);
-const emptyFilters: Filters = { search: "", status: "all", marketId: "all", date: "" };
+const emptyFilters: Filters = { status: "all", marketId: "all", date: "" };
 
 const navItems: Array<{ id: Section; label: string; icon: any }> = [
   { id: "dashboard", label: "Dashboard", icon: Gauge },
@@ -99,24 +98,12 @@ function App() {
   const userById = useMemo(() => new Map(users.map((user) => [user.id, user])), [users]);
   const marketById = useMemo(() => new Map(markets.map((market) => [market.id, market])), [markets]);
 
-  const filteredUsers = useMemo(() => {
-    const needle = filters.search.trim().toLowerCase();
-    return users.filter((user) => (!needle || user.name.toLowerCase().includes(needle) || user.phone.toLowerCase().includes(needle)) && (filters.status === "all" || user.status === filters.status));
-  }, [users, filters.search, filters.status]);
 
-  const filteredWithdraw = useMemo(() => {
-    const needle = filters.search.trim().toLowerCase();
-    return withdrawDetails.filter((item) => !needle || item.user_name.toLowerCase().includes(needle) || item.account_holder_name.toLowerCase().includes(needle));
-  }, [withdrawDetails, filters.search]);
 
   const filteredMarkets = useMemo(() => markets.filter((market) => filters.status === "all"), [markets, filters.status]);
 
   const filteredResults = useMemo(() => results.filter((item) => (!filters.date || item.result_date === filters.date) && (filters.marketId === "all" || item.market_id === filters.marketId)), [results, filters.date, filters.marketId]);
 
-  const filteredWins = useMemo(() => wins.filter((win) => {
-    const needle = filters.search.trim().toLowerCase();
-    return (!needle || win.winner_name.toLowerCase().includes(needle) || win.winner_phone.toLowerCase().includes(needle) || win.number_played.includes(needle)) && (!filters.date || win.created_at.slice(0, 10) === filters.date) && (filters.marketId === "all" || win.market_id === filters.marketId);
-  }), [wins, filters]);
 
   const filteredRecords = useMemo(() => records.filter((record) => (!filters.date || record.date === filters.date) && (filters.marketId === "all" || record.market_id === filters.marketId)), [records, filters.date, filters.marketId]);
 
@@ -183,10 +170,10 @@ function App() {
 
         <div className="p-4 lg:p-6">
           {section === "dashboard" && <Dashboard users={users} bids={bids} wins={wins} markets={markets} analytics={analytics} setSection={setSection} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
-          {section === "users" && <UsersModule users={filteredUsers} onCreate={() => setModal({ kind: "user", mode: "create" })} onEdit={(item) => setModal({ kind: "user", mode: "edit", item })} onDelete={(id) => remove("app_users", id, "user")} />}
+          {section === "users" && <UsersModule users={users} onCreate={() => setModal({ kind: "user", mode: "create" })} onEdit={(item) => setModal({ kind: "user", mode: "edit", item })} onDelete={(id) => remove("app_users", id, "user")} />}
           {section === "markets" && <MarketsModule items={filteredMarkets} onCreate={() => setModal({ kind: "market", mode: "create" })} onEdit={(item) => setModal({ kind: "market", mode: "edit", item })} onDelete={(id) => remove("markets", id, "market")} />}
           {section === "results" && <ResultsModule items={filteredResults} marketById={marketById} onCreate={() => setModal({ kind: "result", mode: "create" })} onEdit={(item) => setModal({ kind: "result", mode: "edit", item })} onDelete={(id) => remove("results", id, "result")} />}
-          {section === "wins" && <WinsModule items={filteredWins} />}
+          {section === "wins" && <WinsModule items={wins} />}
           {section === "records" && <RecordsModule items={filteredRecords} markets={markets} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "commission" && <CommissionModule users={users} bids={bids} wins={wins} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "reports" && <ReportsModule analytics={analytics} records={filteredRecords} transactions={transactions} />}

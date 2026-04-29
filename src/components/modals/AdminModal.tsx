@@ -36,13 +36,10 @@ export function AdminModal({ modal, users, markets, onClose, onSaved }: { modal:
     const password = formText(form, "password");
     const confirmPassword = formText(form, "confirm_password");
     if (password !== confirmPassword) { toast.error("Passwords do not match"); return; }
-    await submit("app_users", { 
+    await submit("app_users", {
       name: formText(form, "name"), phone: formText(form, "phone"), password: password,
       commission: Number(form.get("commission") || 0),
-      status: "unblocked", // Default status
-      balance: Number(form.get("balance") || 0), total_game_amount: Number(form.get("total_game_amount") || 0), 
-      total_won: Number(form.get("total_won") || 0), total_withdraw: Number(form.get("total_withdraw") || 0), 
-      total_bonus: Number(form.get("total_bonus") || 0)
+
     }, id);
   }
 

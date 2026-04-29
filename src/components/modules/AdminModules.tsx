@@ -83,25 +83,7 @@ export function Dashboard({
           </button>
         ))}
       </div>
-      <div className="space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h2 className="text-lg font-bold">Bids on Single Ank of Date {displayDate}</h2>
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Market:</span>
-              <select className="filter-control" value={filters.marketId} onChange={(e) => updateFilter("marketId", e.target.value)}>
-                <option value="all">All Markets</option>
-                {markets.map((m) => <option key={m.id} value={m.id}>{m.market_name}</option>)}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Date:</span>
-              <input className="filter-control" type="date" value={filters.date || today} onChange={(e) => updateFilter("date", e.target.value)} />
-            </div>
-          </div>
-        </div>
-        <DigitGrid digits={analytics.digits} amounts={analytics.digitAmounts} />
-      </div>
+
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
         <Panel title="Market Pulse"><MarketStats stats={analytics.marketStats} /></Panel>
         <Panel title="Recent Winners" action={`${wins.length} wins`}><SimpleList items={wins.slice(0, 5).map((win) => ({ title: win.winner_name, meta: `${win.market_name} • ${money.format(win.win_amount)}` }))} /></Panel>
@@ -368,17 +350,6 @@ export function CommissionModule({
 
   return (
     <Panel title="Commission Report">
-      <div className="mb-6 flex items-end gap-6">
-        <label className="field-label flex-1 max-w-[200px]">
-          Filter by Date
-          <input
-            className="field-input w-full"
-            type="date"
-            value={selectedDate}
-            onChange={(e) => updateFilter("date", e.target.value)}
-          />
-        </label>
-      </div>
 
       <DataTable headers={["User Name", "Mobile No.", "Bid Amount", "Commission Amount", "Win Amount"]}>
         {userStats.length > 0 ? (

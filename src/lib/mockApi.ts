@@ -6,13 +6,7 @@ export type AppUser = {
   name: string;
   phone: string;
   password?: string;
-  balance: number;
-  total_game_amount: number;
-  total_won: number;
-  total_withdraw: number;
-  total_bonus: number;
   commission: number;
-  status: "blocked" | "unblocked";
   created_at: string;
   updated_at?: string;
 };
