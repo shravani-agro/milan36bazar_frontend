@@ -11,6 +11,7 @@ export type AppUser = {
   total_won: number;
   total_withdraw: number;
   total_bonus: number;
+  commission: number;
   status: "blocked" | "unblocked";
   created_at: string;
   updated_at?: string;
@@ -19,7 +20,7 @@ export type AppUser = {
 export type Market = {
   id: string;
   market_name: string;
-  status: "open" | "closed";
+
   open_time: string;
   created_at: string;
 };
@@ -111,7 +112,7 @@ const STORAGE_KEY = "kalyan36bazar_admin_data";
 interface StorageData {
   app_users: AppUser[];
   markets: Market[];
-  withdraw_details: WithdrawDetail[];
+
   results: ResultRecord[];
   bids: Bid[];
   win_history: WinHistory[];
@@ -123,7 +124,7 @@ interface StorageData {
 const initialData: StorageData = {
   app_users: [],
   markets: [],
-  withdraw_details: [],
+
   results: [],
   bids: [],
   win_history: [],

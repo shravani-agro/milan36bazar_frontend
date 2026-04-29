@@ -25,11 +25,12 @@ import type { AppUser, Market, WithdrawDetail, ResultRecord, Bid, WinHistory, Ba
 
 import { money, formatDate } from "@/components/ui/AdminUI";
 import { AdminModal, ModalState } from "@/components/modals/AdminModal";
-import { Dashboard, UsersModule, WithdrawModule, MarketsModule, ResultsModule, WinsModule, RecordsModule, ReportsModule } from "@/components/modules/AdminModules";
+import { Dashboard, UsersModule, MarketsModule, ResultsModule, WinsModule, RecordsModule, ReportsModule, CommissionModule } from "@/components/modules/AdminModules";
+import { CircleDollarSign } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 
-type Section = "dashboard" | "users" | "withdraw" | "markets" | "results" | "wins" | "records" | "reports";
+type Section = "dashboard" | "users" | "markets" | "results" | "wins" | "records" | "reports" | "commission";
 
 type Filters = {
   search: string;
@@ -44,11 +45,11 @@ const emptyFilters: Filters = { search: "", status: "all", marketId: "all", date
 const navItems: Array<{ id: Section; label: string; icon: any }> = [
   { id: "dashboard", label: "Dashboard", icon: Gauge },
   { id: "users", label: "Users", icon: Users },
-  { id: "withdraw", label: "Withdraw Details", icon: Landmark },
   { id: "markets", label: "Markets", icon: DoorOpen },
   { id: "results", label: "Results", icon: Trophy },
   { id: "wins", label: "Win History", icon: History },
   { id: "records", label: "Bids Data", icon: Database },
+  { id: "commission", label: "Commission", icon: CircleDollarSign },
   { id: "reports", label: "Reports", icon: BarChart3 },
 ];
 
@@ -182,12 +183,12 @@ function App() {
 
         <div className="p-4 lg:p-6">
           {section === "dashboard" && <Dashboard users={users} bids={bids} wins={wins} markets={markets} analytics={analytics} setSection={setSection} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
-          {section === "users" && <UsersModule users={filteredUsers} onCreate={() => setModal({ kind: "user", mode: "create" })} onEdit={(item) => setModal({ kind: "user", mode: "edit", item })} onBalance={(item) => setModal({ kind: "balance", item })} onDelete={(id) => remove("app_users", id, "user")} />}
-          {section === "withdraw" && <WithdrawModule items={filteredWithdraw} onEdit={(item) => setModal({ kind: "withdraw", mode: "edit", item })} onDelete={(id) => remove("withdraw_details", id, "withdraw record")} />}
+          {section === "users" && <UsersModule users={filteredUsers} onCreate={() => setModal({ kind: "user", mode: "create" })} onEdit={(item) => setModal({ kind: "user", mode: "edit", item })} onDelete={(id) => remove("app_users", id, "user")} />}
           {section === "markets" && <MarketsModule items={filteredMarkets} onCreate={() => setModal({ kind: "market", mode: "create" })} onEdit={(item) => setModal({ kind: "market", mode: "edit", item })} onDelete={(id) => remove("markets", id, "market")} />}
           {section === "results" && <ResultsModule items={filteredResults} marketById={marketById} onCreate={() => setModal({ kind: "result", mode: "create" })} onEdit={(item) => setModal({ kind: "result", mode: "edit", item })} onDelete={(id) => remove("results", id, "result")} />}
           {section === "wins" && <WinsModule items={filteredWins} />}
           {section === "records" && <RecordsModule items={filteredRecords} markets={markets} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
+          {section === "commission" && <CommissionModule users={users} bids={bids} wins={wins} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "reports" && <ReportsModule analytics={analytics} records={filteredRecords} transactions={transactions} />}
         </div>
       </section>

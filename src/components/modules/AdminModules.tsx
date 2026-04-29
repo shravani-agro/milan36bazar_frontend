@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useState, useMemo } from "react";
 import { Users, ClipboardList, Coins, CircleDollarSign, Wallet, Landmark, UserPlus, Plus } from "lucide-react";
 import { AppUser, Bid, WinHistory, Market, MarketRecord, BalanceTransaction } from "@/lib/mockApi";
 import { toast } from "sonner";
@@ -110,35 +110,23 @@ export function Dashboard({
   );
 }
 
-export function UsersModule({ users, onCreate, onEdit, onBalance, onDelete }: { users: AppUser[]; onCreate: () => void; onEdit: (item: AppUser) => void; onBalance: (item: AppUser) => void; onDelete: (id: string) => void }) {
+export function UsersModule({ users, onCreate, onEdit, onDelete }: { users: AppUser[]; onCreate: () => void; onEdit: (item: AppUser) => void; onDelete: (id: string) => void }) {
   return (
     <Panel title="Users" action={<button className="btn-primary" onClick={onCreate}><UserPlus className="h-4 w-4" /> Create User</button>}>
-      <DataTable headers={["ID", "Name", "Phone", "Password", "Balance", "Total Game", "Total Won", "Total Withdraw", "Total Bonus", "Status", "Add/Deduct", "Action", "Created At"]}>
+      <DataTable headers={["ID", "Name", "Phone", "Password", "Commission%", "Action"]}>
         {users.map((user, idx) => (
           <tr key={user.id}>
             <td>{idx + 1}</td>
             <td className="font-medium text-primary cursor-pointer" onClick={() => onEdit(user)}>{user.name}</td>
             <td className="text-primary">{user.phone}</td>
             <td>{user.password || "—"}</td>
-            <td>{user.balance}</td>
-            <td>{user.total_game_amount}</td>
-            <td>{user.total_won}</td>
-            <td>{user.total_withdraw}</td>
-            <td>{user.total_bonus}</td>
+            <td>{user.commission || 0}%</td>
             <td>
-              <div className="flex gap-1">
-                <button className={`btn-compact ${user.status === "blocked" ? "bg-muted" : ""}`} disabled={user.status === "blocked"}>Blocked</button>
-                <button className={`btn-compact ${user.status === "unblocked" ? "bg-primary text-white" : ""}`} disabled={user.status === "unblocked"}>Unblock</button>
+              <div className="flex flex-wrap gap-1">
+                <button className="btn-compact border border-primary text-primary" onClick={() => onEdit(user)}>Edit</button>
+                <button className="btn-compact border border-red-500 text-red-500" onClick={() => onDelete(user.id)}>Delete</button>
               </div>
             </td>
-            <td><button className="btn-compact border border-primary text-primary text-[10px]" onClick={() => onBalance(user)}>Add | Deduct | Password</button></td>
-            <td>
-              <div className="flex flex-col gap-1">
-                <button className="btn-compact border border-primary text-primary text-[10px]">Open WhatsApp</button>
-                <button className="btn-compact border border-red-500 text-red-500 text-[10px]" onClick={() => onDelete(user.id)}>Delete</button>
-              </div>
-            </td>
-            <td className="text-xs">{user.created_at.replace("T", " ").split(".")[0]}</td>
           </tr>
         ))}
       </DataTable>
@@ -153,12 +141,12 @@ export function WithdrawModule({ items, onEdit, onDelete }: { items: any[]; onEd
 export function MarketsModule({ items, onCreate, onEdit, onDelete }: { items: Market[]; onCreate: () => void; onEdit: (item: Market) => void; onDelete: (id: string) => void }) {
   return (
     <Panel title="Markets" action={<button className="btn-primary" onClick={onCreate}><Plus className="h-4 w-4" /> Create Market</button>}>
-      <DataTable headers={["ID", "Name", "Current Status", "Open Time", "Created At", "Action"]}>
+      <DataTable headers={["ID", "Name", "Open Time", "Created At", "Action"]}>
         {items.map((item, idx) => (
           <tr key={item.id}>
             <td>{idx + 9}</td>
             <td className="font-medium">{item.market_name}</td>
-            <td><span className={`font-bold ${item.status === "open" ? "text-green-500" : "text-red-400"}`}>{item.status === "open" ? "OPEN NOW" : "CLOSED NOW"}</span></td>
+
             <td>{item.open_time}</td>
             <td className="text-xs">{item.created_at.replace("T", " ").split(".")[0]}</td>
             <td>
@@ -183,23 +171,24 @@ export function WinsModule({ items }: { items: WinHistory[] }) {
   return <Panel title="Win History" action={`${items.length} records`}><DataTable headers={["Market", "Winner", "Phone", "Amount", "Number", "Win Amount", "Created"]}>{items.map((item) => <tr key={item.id}><td>{item.market_name}</td><td className="font-medium">{item.winner_name}</td><td>{item.winner_phone}</td><td>{money.format(item.amount)}</td><td>{item.number_played}</td><td>{money.format(item.win_amount)}</td><td>{formatDate(item.created_at)}</td></tr>)}</DataTable></Panel>;
 }
 
-export function RecordsModule({ 
-  items, 
-  markets, 
-  filters, 
-  updateFilter 
-}: { 
-  items: MarketRecord[]; 
-  markets: Market[]; 
-  filters: any; 
-  updateFilter: (k: string, v: string) => void 
+export function RecordsModule({
+  items,
+  markets,
+  filters,
+  updateFilter
+}: {
+  items: MarketRecord[];
+  markets: Market[];
+  filters: any;
+  updateFilter: (k: string, v: string) => void
 }) {
+  const [showData, setShowData] = useState(false);
   const selectedRecord = items[0]; // Assuming filtered to one market/date
 
   const copyToClipboard = () => {
     const record = items[0];
     const marketName = record?.market_name || markets.find(m => m.id === filters.marketId)?.market_name || "Market";
-    
+
     const now = new Date();
     const timeStr = now.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
     const dateStr = now.toLocaleDateString("en-GB").replace(/\//g, "-");
@@ -207,7 +196,7 @@ export function RecordsModule({
     let text = `${marketName} ₹ :\n`;
     text += `Date and Time   ${timeStr.toLowerCase()} ${dateStr}\n`;
     text += "---------------------------------\n";
-    
+
     text += "Single Digit\n";
     let hasDigits = false;
     if (record) {
@@ -220,19 +209,19 @@ export function RecordsModule({
       }
     }
     if (!hasDigits) text += "0\n";
-    
+
     text += "---------------------------------\n";
     text += "Single Pana\n";
     text += `${record?.single_pana || 0}\n`;
-    
+
     text += "---------------------------------\n";
     text += "Double Pana\n";
     text += `${record?.double_pana || 0}\n`;
-    
+
     text += "---------------------------------\n";
     text += "Triple Pana\n";
     text += `${record?.triple_pana || 0}\n`;
-    
+
     text += "---------------------------------\n";
     text += `Total  ${record?.total_bid_amount || 0}`;
 
@@ -242,82 +231,89 @@ export function RecordsModule({
 
   return (
     <Panel title="Bids Data">
-      <div className="mb-6 grid gap-6 md:grid-cols-3">
-        <label className="field-label">
+      <div className="mb-6 flex flex-wrap items-end gap-6">
+        <label className="field-label flex-1 min-w-[150px]">
           Date
-          <input 
-            className="field-input" 
-            type="date" 
-            value={filters.date || today} 
-            onChange={(e) => updateFilter("date", e.target.value)} 
+          <input
+            className="field-input w-full"
+            type="date"
+            value={filters.date || today}
+            onChange={(e) => { updateFilter("date", e.target.value); setShowData(false); }}
           />
         </label>
-        <label className="field-label">
+        <label className="field-label flex-1 min-w-[150px]">
           Market Name
-          <select 
-            className="field-input" 
-            value={filters.marketId} 
-            onChange={(e) => updateFilter("marketId", e.target.value)}
+          <select
+            className="field-input w-full"
+            value={filters.marketId}
+            onChange={(e) => { updateFilter("marketId", e.target.value); setShowData(false); }}
           >
             <option value="all">All Markets</option>
             {markets.map((m) => <option key={m.id} value={m.id}>{m.market_name}</option>)}
           </select>
         </label>
+        <button className="btn-primary px-8 h-10 mb-[2px]" onClick={() => setShowData(true)}>
+          GET
+        </button>
       </div>
 
-      <div className="table-scroll mb-6">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Sr. No.</th>
-              <th>Single Digit</th>
-              <th>Single Pana</th>
-              <th>Double Pana</th>
-              <th>Triple Pana</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.length > 0 ? (
-              items.map((item, idx) => (
-                <tr key={`${item.date}-${item.market_id}`}>
-                  <td>{idx + 1}</td>
-                  <td>
-                    {(() => {
-                      const digits = Array.from({ length: 10 }, (_, i) => {
-                        const val = item[`single_digit_${i}` as keyof MarketRecord] as number;
-                        return val > 0 ? <div key={i}>{i} = {val}</div> : null;
-                      }).filter(Boolean);
-                      return digits.length > 0 ? digits : "0";
-                    })()}
-                  </td>
-                  <td>{item.single_pana || 0}</td>
-                  <td>{item.double_pana || 0}</td>
-                  <td>{item.triple_pana || 0}</td>
+      {showData && (
+        <>
+          <div className="table-scroll mb-6">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Sr. No.</th>
+                  <th>Single Digit</th>
+                  <th>Single Pana</th>
+                  <th>Double Pana</th>
+                  <th>Triple Pana</th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-                <td>0</td>
-              </tr>
-            )}
-            <tr className="font-bold bg-muted/20">
-              <td>Total.</td>
-              <td>{items.reduce((sum, item) => sum + Array.from({ length: 10 }, (_, i) => item[`single_digit_${i}` as keyof MarketRecord] as number).reduce((a, b) => a + b, 0), 0)}</td>
-              <td>{items.reduce((sum, item) => sum + item.single_pana, 0)}</td>
-              <td>{items.reduce((sum, item) => sum + item.double_pana, 0)}</td>
-              <td>{items.reduce((sum, item) => sum + item.triple_pana, 0)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody>
+                {items.length > 0 ? (
+                  items.map((item, idx) => (
+                    <tr key={`${item.date}-${item.market_id}`}>
+                      <td>{idx + 1}</td>
+                      <td>
+                        {(() => {
+                          const digits = Array.from({ length: 10 }, (_, i) => {
+                            const val = item[`single_digit_${i}` as keyof MarketRecord] as number;
+                            return val > 0 ? <div key={i}>{i} = {val}</div> : null;
+                          }).filter(Boolean);
+                          return digits.length > 0 ? digits : "0";
+                        })()}
+                      </td>
+                      <td>{item.single_pana || 0}</td>
+                      <td>{item.double_pana || 0}</td>
+                      <td>{item.triple_pana || 0}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td>1</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td>0</td>
+                  </tr>
+                )}
+                <tr className="font-bold bg-muted/20">
+                  <td>Total.</td>
+                  <td>{items.reduce((sum, item) => sum + Array.from({ length: 10 }, (_, i) => item[`single_digit_${i}` as keyof MarketRecord] as number).reduce((a, b) => a + b, 0), 0)}</td>
+                  <td>{items.reduce((sum, item) => sum + item.single_pana, 0)}</td>
+                  <td>{items.reduce((sum, item) => sum + item.double_pana, 0)}</td>
+                  <td>{items.reduce((sum, item) => sum + item.triple_pana, 0)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-      <button className="btn-primary" onClick={copyToClipboard}>
-        Copy to Clipboard
-      </button>
+          <button className="btn-primary" onClick={copyToClipboard}>
+            Copy to Clipboard
+          </button>
+        </>
+      )}
     </Panel>
   );
 }
@@ -332,5 +328,85 @@ export function ReportsModule({ analytics, records, transactions }: { analytics:
       </div>
       <Panel title="Market-wise Stats"><MarketStats stats={analytics.marketStats} /></Panel>
     </div>
+  );
+}
+
+export function CommissionModule({ 
+  users, 
+  bids, 
+  wins, 
+  filters, 
+  updateFilter 
+}: { 
+  users: AppUser[]; 
+  bids: Bid[]; 
+  wins: WinHistory[]; 
+  filters: any; 
+  updateFilter: (k: string, v: string) => void 
+}) {
+  const selectedDate = filters.date || today;
+
+  const userStats = useMemo(() => {
+    return users.map(user => {
+      const dailyBids = bids.filter(b => b.app_user_id === user.id && b.bid_date === selectedDate);
+      const dailyWins = wins.filter(w => w.app_user_id === user.id && w.created_at.startsWith(selectedDate));
+      
+      const bidAmount = dailyBids.reduce((sum, b) => sum + b.amount, 0);
+      const winAmount = dailyWins.reduce((sum, w) => sum + w.win_amount, 0);
+      const commissionAmount = (bidAmount * (user.commission || 0)) / 100;
+
+      return {
+        id: user.id,
+        name: user.name,
+        phone: user.phone,
+        bidAmount,
+        commissionAmount,
+        winAmount
+      };
+    }).filter(u => u.bidAmount > 0 || u.winAmount > 0);
+  }, [users, bids, wins, selectedDate]);
+
+  return (
+    <Panel title="Commission Report">
+      <div className="mb-6 flex items-end gap-6">
+        <label className="field-label flex-1 max-w-[200px]">
+          Filter by Date
+          <input 
+            className="field-input w-full" 
+            type="date" 
+            value={selectedDate} 
+            onChange={(e) => updateFilter("date", e.target.value)} 
+          />
+        </label>
+      </div>
+
+      <DataTable headers={["User Name", "Mobile No.", "Bid Amount", "Commission Amount", "Win Amount"]}>
+        {userStats.length > 0 ? (
+          userStats.map((stat) => (
+            <tr key={stat.id}>
+              <td className="font-medium">{stat.name}</td>
+              <td className="text-primary">{stat.phone}</td>
+              <td>{money.format(stat.bidAmount)}</td>
+              <td className="text-green-600 font-medium">+{money.format(stat.commissionAmount)}</td>
+              <td className="text-blue-600 font-medium">{money.format(stat.winAmount)}</td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan={5} className="text-center py-8 text-muted-foreground">
+              No transactions found for this date.
+            </td>
+          </tr>
+        )}
+        {userStats.length > 0 && (
+          <tr className="font-bold bg-muted/20">
+            <td colSpan={2}>Grand Total</td>
+            <td>{money.format(userStats.reduce((s, u) => s + u.bidAmount, 0))}</td>
+            <td className="text-green-600">{money.format(userStats.reduce((s, u) => s + u.commissionAmount, 0))}</td>
+            <td className="text-blue-600">{money.format(userStats.reduce((s, u) => s + u.winAmount, 0))}</td>
+          </tr>
+        )}
+      </DataTable>
+    </Panel>
   );
 }
