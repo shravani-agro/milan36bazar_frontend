@@ -109,7 +109,7 @@ function App() {
     return withdrawDetails.filter((item) => !needle || item.user_name.toLowerCase().includes(needle) || item.account_holder_name.toLowerCase().includes(needle));
   }, [withdrawDetails, filters.search]);
 
-  const filteredMarkets = useMemo(() => markets.filter((market) => filters.status === "all" || market.status === filters.status), [markets, filters.status]);
+  const filteredMarkets = useMemo(() => markets.filter((market) => filters.status === "all"), [markets, filters.status]);
 
   const filteredResults = useMemo(() => results.filter((item) => (!filters.date || item.result_date === filters.date) && (filters.marketId === "all" || item.market_id === filters.marketId)), [results, filters.date, filters.marketId]);
 
@@ -137,7 +137,7 @@ function App() {
     if (showSpinner) setLoading(true);
     const { data, error } = await mockApi.db.getAll();
     if (!error) {
-      setUsers(data.app_users); setMarkets(data.markets); setWithdrawDetails(data.withdraw_details);
+      setUsers(data.app_users); setMarkets(data.markets);
       setResults(data.results); setBids(data.bids); setWins(data.win_history);
       setRecords(data.market_bid_records || []); setTransactions(data.balance_transactions);
     }
@@ -157,17 +157,17 @@ function App() {
   return (
     <main className="min-h-screen bg-background text-foreground flex">
       {sidebarOpen && <div className="fixed inset-0 z-30 bg-black/50 lg:hidden" onClick={() => setSidebarOpen(false)} />}
-      
-      <Sidebar 
-        sidebarOpen={sidebarOpen} 
-        setSidebarOpen={setSidebarOpen} 
-        section={section} 
-        setSection={setSection} 
-        navItems={navItems} 
+
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        section={section}
+        setSection={setSection}
+        navItems={navItems}
       />
 
       <section className="min-w-0 flex-1">
-        <Header 
+        <Header
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           section={section}

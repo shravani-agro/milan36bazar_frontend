@@ -103,7 +103,7 @@ export function Dashboard({
         <DigitGrid digits={analytics.digits} amounts={analytics.digitAmounts} />
       </div>
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <Panel title="Market Pulse" action={`${markets.filter((m) => m.status === "open").length} open`}><MarketStats stats={analytics.marketStats} /></Panel>
+        <Panel title="Market Pulse"><MarketStats stats={analytics.marketStats} /></Panel>
         <Panel title="Recent Winners" action={`${wins.length} wins`}><SimpleList items={wins.slice(0, 5).map((win) => ({ title: win.winner_name, meta: `${win.market_name} • ${money.format(win.win_amount)}` }))} /></Panel>
       </div>
     </div>
@@ -331,18 +331,18 @@ export function ReportsModule({ analytics, records, transactions }: { analytics:
   );
 }
 
-export function CommissionModule({ 
-  users, 
-  bids, 
-  wins, 
-  filters, 
-  updateFilter 
-}: { 
-  users: AppUser[]; 
-  bids: Bid[]; 
-  wins: WinHistory[]; 
-  filters: any; 
-  updateFilter: (k: string, v: string) => void 
+export function CommissionModule({
+  users,
+  bids,
+  wins,
+  filters,
+  updateFilter
+}: {
+  users: AppUser[];
+  bids: Bid[];
+  wins: WinHistory[];
+  filters: any;
+  updateFilter: (k: string, v: string) => void
 }) {
   const selectedDate = filters.date || today;
 
@@ -350,7 +350,7 @@ export function CommissionModule({
     return users.map(user => {
       const dailyBids = bids.filter(b => b.app_user_id === user.id && b.bid_date === selectedDate);
       const dailyWins = wins.filter(w => w.app_user_id === user.id && w.created_at.startsWith(selectedDate));
-      
+
       const bidAmount = dailyBids.reduce((sum, b) => sum + b.amount, 0);
       const winAmount = dailyWins.reduce((sum, w) => sum + w.win_amount, 0);
       const commissionAmount = (bidAmount * (user.commission || 0)) / 100;
@@ -371,11 +371,11 @@ export function CommissionModule({
       <div className="mb-6 flex items-end gap-6">
         <label className="field-label flex-1 max-w-[200px]">
           Filter by Date
-          <input 
-            className="field-input w-full" 
-            type="date" 
-            value={selectedDate} 
-            onChange={(e) => updateFilter("date", e.target.value)} 
+          <input
+            className="field-input w-full"
+            type="date"
+            value={selectedDate}
+            onChange={(e) => updateFilter("date", e.target.value)}
           />
         </label>
       </div>
