@@ -212,14 +212,16 @@ function App() {
     return () => listener.subscription.unsubscribe();
   }, []);
 
+  const sessionUserId = session?.user?.id;
+
   useEffect(() => {
-    if (!session?.user) {
+    if (!sessionUserId) {
       setIsAdmin(false);
       setAdminChecked(true);
       return;
     }
-    void ensureAdminRole(session.user.id);
-  }, [session?.user?.id]);
+    void ensureAdminRole(sessionUserId);
+  }, [sessionUserId]);
 
   useEffect(() => {
     if (session && isAdmin) {
