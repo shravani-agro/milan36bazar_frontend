@@ -1,6 +1,6 @@
-# kalyan36bazar Admin Console
+# milan36bazar Admin Console
 
-Secure gaming operations console for kalyan36bazar.
+Secure gaming operations console for milan36bazar.
 
 ## Tech Stack
 - Vite

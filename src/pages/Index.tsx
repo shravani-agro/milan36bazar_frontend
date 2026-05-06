@@ -20,7 +20,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { mockApi } from "@/lib/mockApi";
+import { realApi as mockApi } from "@/lib/api";
 import type { AppUser, Market, WithdrawDetail, ResultRecord, Bid, WinHistory, BalanceTransaction, MarketRecord, Session } from "@/lib/mockApi";
 
 import { money, formatDate } from "@/components/ui/AdminUI";
@@ -110,7 +110,7 @@ function App() {
   const analytics = useMemo(() => {
     const dailyBids = bids.filter((bid) => (!filters.date || bid.bid_date === filters.date) && (filters.marketId === "all" || bid.market_id === filters.marketId));
     const totalBidAmount = dailyBids.reduce((sum, bid) => sum + numberOrZero(bid.amount), 0);
-    const totalWithdraw = users.reduce((sum, user) => sum + numberOrZero(user.total_withdraw), 0);
+    const totalWithdraw = users.reduce((sum, user) => sum, 0);
     const totalDeposit = transactions.filter((trx) => ["add", "deposit"].includes(trx.transaction_type)).reduce((sum, trx) => sum + numberOrZero(trx.amount), 0);
     const totalCommission = Math.round(totalBidAmount * 0.05);
     const digits = Array.from({ length: 10 }, (_, digit) => dailyBids.filter((bid) => bid.bid_type === "single_digit" && bid.number_played === String(digit)).length);
@@ -124,9 +124,10 @@ function App() {
     if (showSpinner) setLoading(true);
     const { data, error } = await mockApi.db.getAll();
     if (!error) {
-      setUsers(data.app_users); setMarkets(data.markets);
-      setResults(data.results); setBids(data.bids); setWins(data.win_history);
-      setRecords(data.market_bid_records || []); setTransactions(data.balance_transactions);
+      setUsers(data.app_users || []); setMarkets(data.markets || []);
+      setResults(data.results || []); setBids(data.bids || []); setWins(data.win_history || []);
+      setRecords(data.market_bid_records || []); setTransactions(data.balance_transactions || []);
+      setWithdrawDetails(data.withdraw_details || []);
     }
     if (showSpinner) setLoading(false);
   }
@@ -195,7 +196,7 @@ function AuthScreen() {
   return (
     <main className="auth-screen min-h-screen bg-background text-foreground grid place-items-center">
       <section className="dashboard-panel w-full max-w-md p-6">
-        <div className="mb-6 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-md bg-primary text-primary-foreground"><Lock className="h-6 w-6" /></div><div><h1 className="text-2xl font-semibold">kalyan36bazar Admin</h1><p className="text-sm text-muted-foreground">Secure gaming operations console</p></div></div>
+        <div className="mb-6 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-md bg-primary text-primary-foreground"><Lock className="h-6 w-6" /></div><div><h1 className="text-2xl font-semibold">milan36bazar Admin</h1><p className="text-sm text-muted-foreground">Secure gaming operations console</p></div></div>
         <form onSubmit={submit} className="space-y-4"><label className="field-label">Username<input className="field-input" type="text" value={email} onChange={(e) => setEmail(e.target.value)} required /></label><label className="field-label">Password<input className="field-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label><button className="btn-primary w-full" disabled={busy}>{busy ? "Please wait…" : "Login"}</button></form>
       </section>
     </main>
