@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE = "http://184.168.125.61:8000";
+const API_BASE = "http://184.168.125.61";
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -38,7 +38,7 @@ export const realApi = {
       return {
         data: {
           subscription: {
-            unsubscribe: () => {},
+            unsubscribe: () => { },
           },
         },
       };
@@ -59,7 +59,7 @@ export const realApi = {
         let endpoint = `/api/${table}`;
         if (table === "app_users") endpoint = "/api/create/users";
         if (table === "markets") endpoint = "/api/create/markets";
-        
+
         const res = await api.post(endpoint, item);
         return { data: res.data, error: null };
       } catch (err: any) {
