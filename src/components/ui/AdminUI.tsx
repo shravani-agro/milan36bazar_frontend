@@ -44,7 +44,7 @@ export function Badge({ children, tone }: { children: ReactNode; tone: "success"
   return <span className={`status-badge status-${tone}`}>{children}</span>;
 }
 
-export function Field(props: { name: string; label: string; type?: string; defaultValue?: string | number | null; required?: boolean; min?: string; max?: string }) {
+export function Field(props: { name: string; label: string; type?: string; defaultValue?: string | number | null; required?: boolean; min?: string; max?: string; maxLength?: number }) {
   return (
     <label className="field-label">
       {props.label}
@@ -56,6 +56,7 @@ export function Field(props: { name: string; label: string; type?: string; defau
         required={props.required} 
         min={props.min} 
         max={props.max} 
+        maxLength={props.maxLength}
         step={props.type === "number" ? "0.01" : undefined} 
       />
     </label>

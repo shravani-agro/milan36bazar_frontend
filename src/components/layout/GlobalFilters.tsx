@@ -14,8 +14,8 @@ export function GlobalFilters({
   updateFilter: (key: string, value: string) => void;
   reset: () => void
 }) {
-  const showDate = ["results", "wins", "reports", "commission"].includes(section);
-  const showMarket = ["results", "wins", "reports"].includes(section);
+  const showDate = ["results", "wins", "commission"].includes(section);
+  const showMarket = ["results", "wins"].includes(section);
   const showStatus = ["markets"].includes(section);
 
   if (!showDate && !showMarket && !showStatus) return null;

@@ -25,12 +25,12 @@ import type { AppUser, Market, WithdrawDetail, ResultRecord, Bid, WinHistory, Ba
 
 import { money, formatDate } from "@/components/ui/AdminUI";
 import { AdminModal, ModalState } from "@/components/modals/AdminModal";
-import { Dashboard, UsersModule, MarketsModule, ResultsModule, WinsModule, RecordsModule, ReportsModule, CommissionModule } from "@/components/modules/AdminModules";
+import { Dashboard, UsersModule, MarketsModule, ResultsModule, WinsModule, RecordsModule, CommissionModule } from "@/components/modules/AdminModules";
 import { CircleDollarSign } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 
-type Section = "dashboard" | "users" | "markets" | "results" | "wins" | "records" | "reports" | "commission";
+type Section = "dashboard" | "users" | "markets" | "results" | "wins" | "records" | "commission";
 
 type Filters = {
   status: string;
@@ -49,7 +49,6 @@ const navItems: Array<{ id: Section; label: string; icon: any }> = [
   { id: "wins", label: "Win History", icon: History },
   { id: "records", label: "Bids Data", icon: Database },
   { id: "commission", label: "Commission", icon: CircleDollarSign },
-  { id: "reports", label: "Reports", icon: BarChart3 },
 ];
 
 const numberOrZero = (value: unknown) => Number(value ?? 0);
@@ -177,7 +176,7 @@ function App() {
           {section === "wins" && <WinsModule items={wins} />}
           {section === "records" && <RecordsModule items={filteredRecords} markets={markets} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "commission" && <CommissionModule users={users} bids={bids} wins={wins} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
-          {section === "reports" && <ReportsModule analytics={analytics} records={filteredRecords} transactions={transactions} />}
+
         </div>
       </section>
 

@@ -300,18 +300,6 @@ export function RecordsModule({
   );
 }
 
-export function ReportsModule({ analytics, records, transactions }: { analytics: any; records: MarketRecord[]; transactions: BalanceTransaction[] }) {
-  return (
-    <div className="space-y-4">
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Panel title="Patti / Ank Distribution"><Distribution counts={analytics.typeCounts} /></Panel>
-        <Panel title="Date-wise Bid Reports"><SimpleList items={records.slice(0, 8).map((record) => ({ title: `${formatDate(record.date)} • ${record.market_name}`, meta: `${record.total_bids} bids • ${money.format(record.total_bid_amount)}` }))} /></Panel>
-        <Panel title="Balance Ledger"><SimpleList items={transactions.slice(0, 8).map((trx) => ({ title: `${trx.transaction_type} • ${money.format(trx.amount)}`, meta: `${money.format(trx.balance_before)} → ${money.format(trx.balance_after)}` }))} /></Panel>
-      </div>
-      <Panel title="Market-wise Stats"><MarketStats stats={analytics.marketStats} /></Panel>
-    </div>
-  );
-}
 
 export function CommissionModule({
   users,
