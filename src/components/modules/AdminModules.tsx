@@ -126,7 +126,7 @@ export function MarketsModule({ items, onCreate, onEdit, onDelete }: { items: Ma
       <DataTable headers={["ID", "Name", "Open Time", "Created At", "Action"]}>
         {items.map((item, idx) => (
           <tr key={item.id}>
-            <td>{idx + 9}</td>
+            <td>{item.id}</td>
             <td className="font-medium">{item.market_name}</td>
 
             <td>{item.open_time}</td>
