@@ -1,11 +1,14 @@
 import axios from "axios";
 
-const API_BASE = "http://184.168.125.61";
-
+const isNetlify = typeof window !== "undefined" && window.location.hostname.includes("netlify.app");
+const API_BASE = isNetlify ? "" : "http://184.168.125.61";
+// const API_BASE = "http://localhost:8000";
 const api = axios.create({
   baseURL: API_BASE,
   withCredentials: true,
 });
+
+let authListeners: Array<(event: string, session: any) => void> = [];
 
 export const realApi = {
   auth: {
@@ -20,6 +23,9 @@ export const realApi = {
     signInWithPassword: async ({ email, password }: { email: string; password?: string }) => {
       try {
         const res = await api.post("/auth/login", { email, password });
+        if (res.data.session) {
+          authListeners.forEach((l) => l("SIGNED_IN", res.data.session));
+        }
         return { data: res.data, error: res.data.error };
       } catch (err: any) {
         return { data: { session: null }, error: err.response?.data || { message: err.message } };
@@ -28,17 +34,20 @@ export const realApi = {
     signOut: async () => {
       try {
         await api.post("/auth/logout");
+        authListeners.forEach((l) => l("SIGNED_OUT", null));
         return { error: null };
       } catch (err: any) {
         return { error: err.response?.data || { message: err.message } };
       }
     },
     onAuthStateChange: (callback: (event: string, session: any) => void) => {
-      // Mocking subscription for now
+      authListeners.push(callback);
       return {
         data: {
           subscription: {
-            unsubscribe: () => { },
+            unsubscribe: () => {
+              authListeners = authListeners.filter((l) => l !== callback);
+            },
           },
         },
       };
