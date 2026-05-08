@@ -104,7 +104,48 @@ function App() {
   const filteredResults = useMemo(() => results.filter((item) => (!filters.date || item.result_date === filters.date) && (filters.marketId === "all" || item.market_id === filters.marketId)), [results, filters.date, filters.marketId]);
 
 
-  const filteredRecords = useMemo(() => records.filter((record) => (!filters.date || record.date === filters.date) && (filters.marketId === "all" || record.market_id === filters.marketId)), [records, filters.date, filters.marketId]);
+  const filteredRecords = useMemo(() => {
+    const dailyBids = bids.filter((bid) => (!filters.date || bid.bid_date === filters.date) && (filters.marketId === "all" || bid.market_id === filters.marketId));
+    
+    // Group bids by date and market to create MarketRecord-like objects
+    const grouped = new Map<string, MarketRecord>();
+    
+    dailyBids.forEach(bid => {
+      const key = `${bid.bid_date}-${bid.market_id}`;
+      if (!grouped.has(key)) {
+        const market = marketById.get(bid.market_id);
+        grouped.set(key, {
+          date: bid.bid_date,
+          market_id: bid.market_id,
+          market_name: market?.market_name || "Unknown",
+          total_bids: 0,
+          total_bid_amount: 0,
+          single_digit_0: 0, single_digit_1: 0, single_digit_2: 0, single_digit_3: 0, single_digit_4: 0,
+          single_digit_5: 0, single_digit_6: 0, single_digit_7: 0, single_digit_8: 0, single_digit_9: 0,
+          single_pana: 0,
+          double_pana: 0,
+          triple_pana: 0,
+        });
+      }
+      
+      const rec = grouped.get(key)!;
+      rec.total_bids += 1;
+      rec.total_bid_amount += numberOrZero(bid.amount);
+      
+      if (bid.bid_type === "single_digit") {
+        const digitKey = `single_digit_${bid.number_played}` as keyof MarketRecord;
+        (rec[digitKey] as number) += numberOrZero(bid.amount);
+      } else if (bid.bid_type === "single_pana") {
+        rec.single_pana += numberOrZero(bid.amount);
+      } else if (bid.bid_type === "double_pana") {
+        rec.double_pana += numberOrZero(bid.amount);
+      } else if (bid.bid_type === "triple_pana") {
+        rec.triple_pana += numberOrZero(bid.amount);
+      }
+    });
+    
+    return Array.from(grouped.values());
+  }, [bids, filters.date, filters.marketId, marketById]);
 
   const analytics = useMemo(() => {
     const dailyBids = bids.filter((bid) => (!filters.date || bid.bid_date === filters.date) && (filters.marketId === "all" || bid.market_id === filters.marketId));
