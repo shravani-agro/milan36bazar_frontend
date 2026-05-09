@@ -104,7 +104,10 @@ function App() {
   const filteredResults = useMemo(() => results.filter((item) => (!filters.date || item.result_date === filters.date) && (filters.marketId === "all" || item.market_id === filters.marketId)), [results, filters.date, filters.marketId]);
 
   const filteredRecords = useMemo(() => {
-    const dailyBids = bids.filter((bid) => (!filters.date || bid.bid_date === filters.date) && (filters.marketId === "all" || bid.market_id === filters.marketId));
+    const dailyBids = bids.filter((bid) => 
+      (!filters.date || bid.bid_date === filters.date) && 
+      (filters.marketId === "all" || String(bid.market_id) === String(filters.marketId))
+    );
     
     const grouped = new Map<string, MarketRecord>();
     
@@ -132,7 +135,9 @@ function App() {
       
       if (bid.bid_type === "single_digit") {
         const digitKey = `single_digit_${bid.number_played}` as keyof MarketRecord;
-        (rec[digitKey] as number) += numberOrZero(bid.amount);
+        if (digitKey in rec) {
+          (rec[digitKey] as number) += numberOrZero(bid.amount);
+        }
       } else if (bid.bid_type === "single_pana") {
         rec.single_pana += numberOrZero(bid.amount);
       } else if (bid.bid_type === "double_pana") {
@@ -146,7 +151,10 @@ function App() {
   }, [bids, filters.date, filters.marketId, marketById]);
 
   const analytics = useMemo(() => {
-    const dailyBids = bids.filter((bid) => (!filters.date || bid.bid_date === filters.date) && (filters.marketId === "all" || bid.market_id === filters.marketId));
+    const dailyBids = bids.filter((bid) => 
+      (!filters.date || bid.bid_date === filters.date) && 
+      (filters.marketId === "all" || String(bid.market_id) === String(filters.marketId))
+    );
     const totalBidAmount = dailyBids.reduce((sum, bid) => sum + numberOrZero(bid.amount), 0);
     const totalWithdraw = users.reduce((sum, user) => sum, 0);
     const totalDeposit = transactions.filter((trx) => ["add", "deposit"].includes(trx.transaction_type)).reduce((sum, trx) => sum + numberOrZero(trx.amount), 0);
