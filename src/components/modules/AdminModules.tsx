@@ -192,17 +192,22 @@ export function RecordsModule({
     }
     if (!hasDigits) text += "0\n";
 
-    text += "---------------------------------\n";
-    text += "Single Pana\n";
-    text += `${record?.single_pana || 0}\n`;
+    const categories = [
+      { label: "Single Pana", key: "single_pana_display" },
+      { label: "Double Pana", key: "double_pana_display" },
+      { label: "Triple Pana", key: "triple_pana_display" },
+    ];
 
-    text += "---------------------------------\n";
-    text += "Double Pana\n";
-    text += `${record?.double_pana || 0}\n`;
-
-    text += "---------------------------------\n";
-    text += "Triple Pana\n";
-    text += `${record?.triple_pana || 0}\n`;
+    categories.forEach(cat => {
+      text += "---------------------------------\n";
+      text += `${cat.label}\n`;
+      const display = (record as any)[cat.key];
+      if (display) {
+        text += display.split("\n").map((line: string) => line.replace(" = ", " - ")).join("\n") + "\n";
+      } else {
+        text += "0\n";
+      }
+    });
 
     text += "---------------------------------\n";
     text += `Total  ${record?.total_bid_amount || 0}`;
