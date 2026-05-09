@@ -101,7 +101,10 @@ function App() {
 
   const filteredMarkets = useMemo(() => markets.filter((market) => filters.status === "all"), [markets, filters.status]);
 
-  const filteredResults = useMemo(() => results.filter((item) => (!filters.date || item.result_date === filters.date) && (filters.marketId === "all" || item.market_id === filters.marketId)), [results, filters.date, filters.marketId]);
+  const filteredResults = useMemo(() => results.filter((item) => 
+    (!filters.date || item.result_date === filters.date) && 
+    (filters.marketId === "all" || String(item.market_id) === String(filters.marketId))
+  ), [results, filters.date, filters.marketId]);
 
   const filteredRecords = useMemo(() => {
     const dailyBids = bids.filter((bid) => 

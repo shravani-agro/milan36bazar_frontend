@@ -246,6 +246,7 @@ export function RecordsModule({
               <thead>
                 <tr>
                   <th>Sr. No.</th>
+                  <th>Market</th>
                   <th>Single Digit</th>
                   <th>Single Pana</th>
                   <th>Double Pana</th>
@@ -257,13 +258,14 @@ export function RecordsModule({
                   items.map((item, idx) => (
                     <tr key={`${item.date}-${item.market_id}`}>
                       <td>{idx + 1}</td>
+                      <td className="font-medium text-primary">{item.market_name}</td>
                       <td>
                         {(() => {
                           const digits = Array.from({ length: 10 }, (_, i) => {
                             const val = item[`single_digit_${i}` as keyof MarketRecord] as number;
-                            return val > 0 ? <div key={i}>{i} = {val}</div> : null;
+                            return val > 0 ? <div key={i} className="text-xs">{i} = {val}</div> : null;
                           }).filter(Boolean);
-                          return digits.length > 0 ? digits : "0";
+                          return digits.length > 0 ? <div className="space-y-1">{digits}</div> : "0";
                         })()}
                       </td>
                       <td>{item.single_pana || 0}</td>
@@ -274,6 +276,7 @@ export function RecordsModule({
                 ) : (
                   <tr>
                     <td>1</td>
+                    <td>—</td>
                     <td>0</td>
                     <td>0</td>
                     <td>0</td>
@@ -281,7 +284,7 @@ export function RecordsModule({
                   </tr>
                 )}
                 <tr className="font-bold bg-muted/20">
-                  <td>Total.</td>
+                  <td colSpan={2}>Total.</td>
                   <td>{items.reduce((sum, item) => sum + Array.from({ length: 10 }, (_, i) => item[`single_digit_${i}` as keyof MarketRecord] as number).reduce((a, b) => a + b, 0), 0)}</td>
                   <td>{items.reduce((sum, item) => sum + item.single_pana, 0)}</td>
                   <td>{items.reduce((sum, item) => sum + item.double_pana, 0)}</td>
@@ -379,7 +382,6 @@ export function BidsModule({ items, filters, updateFilter }: { items: any[]; fil
     double_pana: "Double Pana",
     triple_pana: "Triple Pana",
   };
-
   const marketGroups = useMemo(() => {
     let filtered = filters.date
       ? items.filter((item) => item.bid_date === filters.date)
