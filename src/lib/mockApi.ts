@@ -84,6 +84,9 @@ export type MarketRecord = {
   single_pana: number;
   double_pana: number;
   triple_pana: number;
+  single_pana_display?: string;
+  double_pana_display?: string;
+  triple_pana_display?: string;
 };
 
 

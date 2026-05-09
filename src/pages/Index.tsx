@@ -141,13 +141,37 @@ function App() {
         if (digitKey in rec) {
           (rec[digitKey] as number) += numberOrZero(bid.amount);
         }
-      } else if (bid.bid_type === "single_pana") {
-        rec.single_pana += numberOrZero(bid.amount);
-      } else if (bid.bid_type === "double_pana") {
-        rec.double_pana += numberOrZero(bid.amount);
-      } else if (bid.bid_type === "triple_pana") {
-        rec.triple_pana += numberOrZero(bid.amount);
+      } else {
+        // Handle Pana types and others with detailed breakdown strings
+        // We'll store them in a temporary structure or update the existing number fields if we don't mind type casting
+        const type = bid.bid_type as keyof MarketRecord;
+        if (type === "single_pana" || type === "double_pana" || type === "triple_pana") {
+          // If it's the first bid of this type for this market/date, it might be a number (0)
+          // We'll use a hidden property to store the map for calculation, then convert to string later
+          const mapKey = `_map_${type}`;
+          if (!(rec as any)[mapKey]) (rec as any)[mapKey] = new Map<string, number>();
+          const m = (rec as any)[mapKey] as Map<string, number>;
+          m.set(bid.number_played, (m.get(bid.number_played) || 0) + numberOrZero(bid.amount));
+        }
       }
+    });
+
+    // Post-process to convert Maps to display strings
+    grouped.forEach(rec => {
+      ["single_pana", "double_pana", "triple_pana"].forEach(type => {
+        const mapKey = `_map_${type}`;
+        const m = (rec as any)[mapKey] as Map<string, number> | undefined;
+        if (m) {
+          // Store numeric sum for totals calculation
+          const sum = Array.from(m.values()).reduce((a, b) => a + b, 0);
+          rec[type as keyof MarketRecord] = sum as any;
+          
+          // Store display string for the table cell
+          (rec as any)[`${type}_display`] = Array.from(m.entries())
+            .map(([num, amt]) => `${num} = ${amt}`)
+            .join("\n");
+        }
+      });
     });
     
     return Array.from(grouped.values());

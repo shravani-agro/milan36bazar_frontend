@@ -268,9 +268,33 @@ export function RecordsModule({
                           return digits.length > 0 ? <div className="space-y-1">{digits}</div> : "0";
                         })()}
                       </td>
-                      <td>{item.single_pana || 0}</td>
-                      <td>{item.double_pana || 0}</td>
-                      <td>{item.triple_pana || 0}</td>
+                      <td>
+                        {item.single_pana_display ? (
+                          <div className="space-y-1">
+                            {item.single_pana_display.split("\n").map((line, i) => (
+                              <div key={i} className="text-xs">{line}</div>
+                            ))}
+                          </div>
+                        ) : "0"}
+                      </td>
+                      <td>
+                        {item.double_pana_display ? (
+                          <div className="space-y-1">
+                            {item.double_pana_display.split("\n").map((line, i) => (
+                              <div key={i} className="text-xs">{line}</div>
+                            ))}
+                          </div>
+                        ) : "0"}
+                      </td>
+                      <td>
+                        {item.triple_pana_display ? (
+                          <div className="space-y-1">
+                            {item.triple_pana_display.split("\n").map((line, i) => (
+                              <div key={i} className="text-xs">{line}</div>
+                            ))}
+                          </div>
+                        ) : "0"}
+                      </td>
                     </tr>
                   ))
                 ) : (
