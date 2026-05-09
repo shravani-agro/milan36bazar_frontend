@@ -466,11 +466,15 @@ export function BidsModule({ items, filters, updateFilter }: { items: any[]; fil
             title={`${group.marketName} (${group.openTime})`}
             action={
               <div className="flex gap-2">
-                 <Badge tone="neutral">Market Total: {money.format(
-                   Object.values(group.types).reduce((acc: number, typeMap: any) => 
-                     acc + Array.from(typeMap.values() as any[]).reduce((t, r) => t + r.total, 0), 0
-                   )
-                 )}</Badge>
+                 <Badge tone="neutral">
+                   Market Total: {money.format(
+                     Object.values(group.types as Record<string, Map<string, any>>).reduce((sum, map) => {
+                       let total = 0;
+                       map.forEach(v => total += (v.total || 0));
+                       return sum + total;
+                     }, 0)
+                   )}
+                 </Badge>
               </div>
             }
           >

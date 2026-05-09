@@ -20,7 +20,7 @@ import {
   ListFilter,
 } from "lucide-react";
 import { toast } from "sonner";
-import { realApi as mockApi } from "@/lib/api";
+import { realApi as mockApi } from "../lib/api";
 import type { AppUser, Market, WithdrawDetail, ResultRecord, Bid, WinHistory, BalanceTransaction, MarketRecord, Session } from "@/lib/mockApi";
 
 import { money, formatDate } from "@/components/ui/AdminUI";
