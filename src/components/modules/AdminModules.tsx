@@ -1,5 +1,5 @@
 import { ReactNode, useState, useMemo } from "react";
-import { Users, ClipboardList, Coins, CircleDollarSign, Wallet, Landmark, UserPlus, Plus } from "lucide-react";
+import { Users, ClipboardList, Coins, CircleDollarSign, Wallet, Landmark, UserPlus, Plus, ListFilter } from "lucide-react";
 import { AppUser, Bid, WinHistory, Market, MarketRecord, BalanceTransaction } from "@/lib/mockApi";
 import { toast } from "sonner";
 import { money, Panel, DataTable, RowActions, Badge, formatDate, SimpleList } from "../ui/AdminUI";
@@ -367,5 +367,160 @@ export function CommissionModule({
         )}
       </DataTable>
     </Panel>
+  );
+}
+
+export function BidsModule({ items, filters, updateFilter }: { items: any[]; filters: any; updateFilter: (k: string, v: string) => void }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  const bidTypeLabels: Record<string, string> = {
+    single_digit: "Single Digit",
+    single_pana: "Single Pana",
+    double_pana: "Double Pana",
+    triple_pana: "Triple Pana",
+  };
+
+  const marketGroups = useMemo(() => {
+    let filtered = filters.date
+      ? items.filter((item) => item.bid_date === filters.date)
+      : items;
+
+    if (searchTerm) {
+      const lowerSearch = searchTerm.toLowerCase();
+      filtered = filtered.filter(bid => 
+        bid.user_name.toLowerCase().includes(lowerSearch) || 
+        bid.user_phone.includes(searchTerm)
+      );
+    }
+
+    const groups = new Map<string, any>();
+
+    filtered.forEach((bid) => {
+      const marketKey = `${bid.market_name}-${bid.open_time}`;
+      if (!groups.has(marketKey)) {
+        groups.set(marketKey, {
+          marketName: bid.market_name,
+          openTime: bid.open_time,
+          types: {
+            single_digit: new Map<string, { total: number; users: Map<string, number> }>(),
+            single_pana: new Map<string, { total: number; users: Map<string, number> }>(),
+            double_pana: new Map<string, { total: number; users: Map<string, number> }>(),
+            triple_pana: new Map<string, { total: number; users: Map<string, number> }>(),
+          },
+        });
+      }
+
+      const group = groups.get(marketKey);
+      const typeMap = group.types[bid.bid_type];
+      
+      if (typeMap) {
+        if (!typeMap.has(bid.number_played)) {
+          typeMap.set(bid.number_played, { total: 0, users: new Map() });
+        }
+        const record = typeMap.get(bid.number_played)!;
+        record.total += bid.amount;
+        record.users.set(bid.user_name, (record.users.get(bid.user_name) || 0) + bid.amount);
+      }
+    });
+
+    return Array.from(groups.values()).sort((a, b) => a.openTime.localeCompare(b.openTime));
+  }, [items, filters.date, searchTerm]);
+
+  return (
+    <div className="space-y-6">
+      <Panel title="Bids Explorer">
+        <div className="flex flex-wrap items-end gap-4">
+          <label className="field-label flex-1 min-w-[200px]">
+            Filter by Date
+            <input
+              type="date"
+              className="field-input"
+              value={filters.date || today}
+              onChange={(e) => updateFilter("date", e.target.value)}
+            />
+          </label>
+          <label className="field-label flex-1 min-w-[200px]">
+            Search User (Name/Phone)
+            <input
+              type="text"
+              placeholder="e.g. Rahul..."
+              className="field-input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </label>
+          <button className="btn-compact border border-primary text-primary h-10 px-4 rounded-md" onClick={() => setSearchTerm("")}>Clear</button>
+        </div>
+      </Panel>
+
+      {marketGroups.length === 0 ? (
+        <div className="py-12 text-center text-muted-foreground bg-card rounded-lg border border-border">
+          No bids found matching your criteria.
+        </div>
+      ) : (
+        marketGroups.map((group) => (
+          <Panel
+            key={`${group.marketName}-${group.openTime}`}
+            title={`${group.marketName} (${group.openTime})`}
+            action={
+              <div className="flex gap-2">
+                 <Badge tone="neutral">Market Total: {money.format(
+                   Object.values(group.types).reduce((acc: number, typeMap: any) => 
+                     acc + Array.from(typeMap.values() as any[]).reduce((t, r) => t + r.total, 0), 0
+                   )
+                 )}</Badge>
+              </div>
+            }
+          >
+            <div className="space-y-6">
+              {Object.entries(group.types).map(([type, numberMap]: [string, any]) => {
+                if (numberMap.size === 0) return null;
+                
+                const sortedNumbers = Array.from(numberMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0], undefined, { numeric: true }));
+
+                return (
+                  <div key={type} className="rounded-xl border border-border overflow-hidden">
+                    <div className="bg-muted/50 px-4 py-2 border-b border-border flex justify-between items-center">
+                      <h3 className="font-bold text-sm uppercase tracking-wider text-muted-foreground">{bidTypeLabels[type] || type}</h3>
+                      <span className="text-xs font-bold text-primary">
+                        {numberMap.size} Numbers Played
+                      </span>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="bg-background border-b border-border text-left">
+                            <th className="px-4 py-2 font-semibold">Number</th>
+                            <th className="px-4 py-2 font-semibold">Total Amount</th>
+                            <th className="px-4 py-2 font-semibold">User Breakdown</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {sortedNumbers.map(([num, data]: any) => (
+                            <tr key={num} className="hover:bg-muted/30 transition-colors">
+                              <td className="px-4 py-2 font-bold text-lg">{num}</td>
+                              <td className="px-4 py-2 font-bold text-primary">{money.format(data.total)}</td>
+                              <td className="px-4 py-2">
+                                <div className="flex flex-wrap gap-1">
+                                  {Array.from(data.users.entries()).map(([user, amt]: any) => (
+                                    <span key={user} className="text-[11px] bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
+                                      {user}: <span className="font-bold">₹{amt}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Panel>
+        ))
+      )}
+    </div>
   );
 }

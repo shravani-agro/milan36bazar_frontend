@@ -63,6 +63,14 @@ export const realApi = {
         return { data: null, error: err.response?.data || { message: err.message } };
       }
     },
+    getAllBids: async () => {
+      try {
+        const res = await api.get("/api/bids/all");
+        return { data: res.data, error: null };
+      } catch (err: any) {
+        return { data: null, error: err.response?.data || { message: err.message } };
+      }
+    },
     insert: async (table: string, item: any) => {
       try {
         let endpoint = `/api/${table}`;

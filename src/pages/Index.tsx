@@ -13,11 +13,11 @@ import {
   LogOut,
   Menu,
   RefreshCw,
-
   ShieldCheck,
   Trophy,
   Users,
   X,
+  ListFilter,
 } from "lucide-react";
 import { toast } from "sonner";
 import { realApi as mockApi } from "@/lib/api";
@@ -25,12 +25,12 @@ import type { AppUser, Market, WithdrawDetail, ResultRecord, Bid, WinHistory, Ba
 
 import { money, formatDate } from "@/components/ui/AdminUI";
 import { AdminModal, ModalState } from "@/components/modals/AdminModal";
-import { Dashboard, UsersModule, MarketsModule, ResultsModule, WinsModule, RecordsModule, CommissionModule } from "@/components/modules/AdminModules";
+import { Dashboard, UsersModule, MarketsModule, ResultsModule, WinsModule, RecordsModule, CommissionModule, BidsModule } from "@/components/modules/AdminModules";
 import { CircleDollarSign } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 
-type Section = "dashboard" | "users" | "markets" | "results" | "wins" | "records" | "commission";
+type Section = "dashboard" | "users" | "markets" | "results" | "wins" | "records" | "commission" | "bids";
 
 type Filters = {
   status: string;
@@ -45,6 +45,7 @@ const navItems: Array<{ id: Section; label: string; icon: any }> = [
   { id: "dashboard", label: "Dashboard", icon: Gauge },
   { id: "users", label: "Users", icon: Users },
   { id: "markets", label: "Markets", icon: DoorOpen },
+  { id: "bids", label: "All Bids", icon: ListFilter },
   { id: "results", label: "Results", icon: Trophy },
   { id: "wins", label: "Win History", icon: History },
   { id: "records", label: "Bids Data", icon: Database },
@@ -76,6 +77,7 @@ function App() {
   const [wins, setWins] = useState<WinHistory[]>([]);
   const [records, setRecords] = useState<MarketRecord[]>([]);
   const [transactions, setTransactions] = useState<BalanceTransaction[]>([]);
+  const [detailedBids, setDetailedBids] = useState<any[]>([]);
 
   useEffect(() => {
     const { data: listener } = mockApi.auth.onAuthStateChange((_event, nextSession) => setSession(nextSession));
@@ -97,17 +99,13 @@ function App() {
   const userById = useMemo(() => new Map(users.map((user) => [user.id, user])), [users]);
   const marketById = useMemo(() => new Map(markets.map((market) => [market.id, market])), [markets]);
 
-
-
   const filteredMarkets = useMemo(() => markets.filter((market) => filters.status === "all"), [markets, filters.status]);
 
   const filteredResults = useMemo(() => results.filter((item) => (!filters.date || item.result_date === filters.date) && (filters.marketId === "all" || item.market_id === filters.marketId)), [results, filters.date, filters.marketId]);
 
-
   const filteredRecords = useMemo(() => {
     const dailyBids = bids.filter((bid) => (!filters.date || bid.bid_date === filters.date) && (filters.marketId === "all" || bid.market_id === filters.marketId));
     
-    // Group bids by date and market to create MarketRecord-like objects
     const grouped = new Map<string, MarketRecord>();
     
     dailyBids.forEach(bid => {
@@ -169,6 +167,10 @@ function App() {
       setRecords(data.market_bid_records || []); setTransactions(data.balance_transactions || []);
       setWithdrawDetails(data.withdraw_details || []);
     }
+    
+    const { data: bidData } = await mockApi.db.getAllBids();
+    if (bidData) setDetailedBids(bidData);
+
     if (showSpinner) setLoading(false);
   }
 
@@ -217,6 +219,7 @@ function App() {
           {section === "wins" && <WinsModule items={wins} />}
           {section === "records" && <RecordsModule items={filteredRecords} markets={markets} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "commission" && <CommissionModule users={users} bids={bids} wins={wins} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
+          {section === "bids" && <BidsModule items={detailedBids} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
 
         </div>
       </section>
