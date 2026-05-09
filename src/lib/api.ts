@@ -71,6 +71,16 @@ export const realApi = {
         return { data: null, error: err.response?.data || { message: err.message } };
       }
     },
+    getAggregatedBids: async (bidDate: string, marketId: number) => {
+      try {
+        const res = await api.get(`/api/bids/aggregated`, {
+          params: { bid_date: bidDate, market_id: marketId },
+        });
+        return { data: res.data, error: null };
+      } catch (err: any) {
+        return { data: null, error: err.response?.data || { message: err.message } };
+      }
+    },
     insert: async (table: string, item: any) => {
       try {
         let endpoint = `/api/${table}`;
