@@ -23,7 +23,7 @@ import { toast } from "sonner";
 import { realApi as mockApi } from "../lib/api";
 import type { AppUser, Market, WithdrawDetail, ResultRecord, Bid, WinHistory, BalanceTransaction, MarketRecord, Session } from "@/lib/mockApi";
 
-import { money, formatDate } from "@/components/ui/AdminUI";
+import { money, formatDate, getToday } from "@/components/ui/AdminUI";
 import { AdminModal, ModalState } from "@/components/modals/AdminModal";
 import { Dashboard, UsersModule, MarketsModule, ResultsModule, WinsModule, RecordsModule, CommissionModule, BidsModule } from "@/components/modules/AdminModules";
 import { CircleDollarSign } from "lucide-react";
@@ -38,7 +38,7 @@ type Filters = {
   date: string;
 };
 
-const getToday = () => new Date().toISOString().slice(0, 10);
+
 const getEmptyFilters = (): Filters => ({ status: "all", marketId: "all", date: getToday() });
 
 const navItems: Array<{ id: Section; label: string; icon: any }> = [

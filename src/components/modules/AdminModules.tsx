@@ -2,9 +2,9 @@ import { ReactNode, useState, useMemo } from "react";
 import { Users, ClipboardList, Coins, CircleDollarSign, Wallet, Landmark, UserPlus, Plus, ListFilter } from "lucide-react";
 import { AppUser, Bid, WinHistory, Market, MarketRecord, BalanceTransaction } from "@/lib/mockApi";
 import { toast } from "sonner";
-import { money, Panel, DataTable, RowActions, Badge, formatDate, formatDateTime, SimpleList } from "../ui/AdminUI";
+import { money, Panel, DataTable, RowActions, Badge, formatDate, formatDateTime, getToday, SimpleList } from "../ui/AdminUI";
 
-const getToday = () => new Date().toISOString().slice(0, 10);
+
 
 export function DigitGrid({ digits, amounts }: { digits: number[]; amounts: number[] }) {
   return (

@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { toast } from "sonner";
 import { realApi as mockApi } from "@/lib/api";
 import { AppUser, Market, WithdrawDetail, ResultRecord, WinHistory } from "@/lib/mockApi";
-import { Field } from "../ui/AdminUI";
+import { Field, getToday } from "../ui/AdminUI";
 import { EntityForm, UserSelect, MarketSelect, ResultFormFields } from "./AdminForms";
 
 export type ModalState =
@@ -13,8 +13,6 @@ export type ModalState =
   | { kind: "result"; mode: "create" | "edit"; item?: ResultRecord }
   | { kind: "win"; mode: "create"; item?: WinHistory }
   | null;
-
-const getToday = () => new Date().toISOString().slice(0, 10);
 
 function formText(form: FormData, key: string) { return String(form.get(key) ?? "").trim(); }
 function optional(value: string) { return value.trim() ? value.trim() : null; }
