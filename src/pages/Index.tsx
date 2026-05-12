@@ -38,8 +38,8 @@ type Filters = {
   date: string;
 };
 
-const today = new Date().toISOString().slice(0, 10);
-const emptyFilters: Filters = { status: "all", marketId: "all", date: today };
+const getToday = () => new Date().toISOString().slice(0, 10);
+const emptyFilters: Filters = { status: "all", marketId: "all", date: getToday() };
 
 const navItems: Array<{ id: Section; label: string; icon: any }> = [
   { id: "dashboard", label: "Dashboard", icon: Gauge },
@@ -243,7 +243,7 @@ function App() {
           loadAll={() => void loadAll()}
           handleLogout={handleLogout}
           updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))}
-          resetFilters={() => setFilters(emptyFilters)}
+          resetFilters={() => setFilters({ ...emptyFilters, date: getToday() })}
         />
 
         <div className="p-4 lg:p-6">

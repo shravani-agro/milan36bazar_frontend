@@ -4,7 +4,7 @@ import { AppUser, Bid, WinHistory, Market, MarketRecord, BalanceTransaction } fr
 import { toast } from "sonner";
 import { money, Panel, DataTable, RowActions, Badge, formatDate, SimpleList } from "../ui/AdminUI";
 
-const today = new Date().toISOString().slice(0, 10);
+const getToday = () => new Date().toISOString().slice(0, 10);
 
 export function DigitGrid({ digits, amounts }: { digits: number[]; amounts: number[] }) {
   return (
@@ -170,7 +170,7 @@ export function ResultsModule({
           <input
             className="field-input w-full"
             type="date"
-            value={filters.date || today}
+            value={filters.date || getToday()}
             onChange={(e) => updateFilter("date", e.target.value)}
           />
         </label>
@@ -274,7 +274,7 @@ export function RecordsModule({
           <input
             className="field-input w-full"
             type="date"
-            value={filters.date || today}
+            value={filters.date || getToday()}
             onChange={(e) => { updateFilter("date", e.target.value); setShowData(false); }}
           />
         </label>
@@ -396,7 +396,7 @@ export function CommissionModule({
   filters: any;
   updateFilter: (k: string, v: string) => void
 }) {
-  const selectedDate = filters.date || today;
+  const selectedDate = filters.date || getToday();
 
   const userStats = useMemo(() => {
     return users.map(user => {
