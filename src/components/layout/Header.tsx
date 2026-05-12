@@ -62,6 +62,30 @@ export function Header({
         <div className="flex items-center gap-1.5 md:gap-3 order-2 lg:order-none ml-auto">
           <div className="h-6 w-[1px] bg-border mx-1 hidden lg:block" />
 
+          <button 
+            className="btn-secondary h-9 px-3 sm:px-4 text-primary border-primary/20 hover:bg-primary/5" 
+            onClick={async () => {
+              const { data, error } = await import("@/lib/api").then(m => m.realApi.db.testNotification());
+              if (error) {
+                // Check if it's the specific serviceAccountKey error
+                const msg = error.message || "Failed to send test notification";
+                if (msg.includes("serviceAccountKey.json")) {
+                  alert("ERROR: Notification failed because 'serviceAccountKey.json' is missing in the backend folder.");
+                } else {
+                  alert(msg);
+                }
+              } else if (data?.status === "error") {
+                alert(data.message);
+              } else {
+                alert("Test notification sent successfully!");
+              }
+            }} 
+            title="Test Push Notification"
+          >
+            <span className="hidden sm:inline">Test Push</span>
+            <span className="sm:hidden">Test</span>
+          </button>
+
           <button className="icon-button" onClick={loadAll} title="Refresh Data">
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
