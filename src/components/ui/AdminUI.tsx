@@ -3,7 +3,35 @@ import { Activity, CalendarDays, Pencil, Trash2, Wallet } from "lucide-react";
 
 export const money = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 export const shortDate = new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" });
-export const formatDate = (value: string) => (value ? shortDate.format(new Date(value)) : "—");
+export const shortDateTime = new Intl.DateTimeFormat("en-IN", { 
+  day: "2-digit", 
+  month: "short", 
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: true 
+});
+
+export const formatDate = (value: string) => {
+  if (!value) return "—";
+  try {
+    return shortDate.format(new Date(value));
+  } catch (e) {
+    return value;
+  }
+};
+
+export const formatDateTime = (value: string) => {
+  if (!value) return "—";
+  try {
+    const date = new Date(value);
+    // If the string is already just a date (no time), don't show 12:00 AM
+    if (value.length <= 10) return shortDate.format(date);
+    return shortDateTime.format(date);
+  } catch (e) {
+    return value;
+  }
+};
 
 export function Panel({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (

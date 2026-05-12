@@ -2,7 +2,7 @@ import { ReactNode, useState, useMemo } from "react";
 import { Users, ClipboardList, Coins, CircleDollarSign, Wallet, Landmark, UserPlus, Plus, ListFilter } from "lucide-react";
 import { AppUser, Bid, WinHistory, Market, MarketRecord, BalanceTransaction } from "@/lib/mockApi";
 import { toast } from "sonner";
-import { money, Panel, DataTable, RowActions, Badge, formatDate, SimpleList } from "../ui/AdminUI";
+import { money, Panel, DataTable, RowActions, Badge, formatDate, formatDateTime, SimpleList } from "../ui/AdminUI";
 
 const getToday = () => new Date().toISOString().slice(0, 10);
 
@@ -117,7 +117,7 @@ export function UsersModule({ users, onCreate, onEdit, onDelete }: { users: AppU
 }
 
 export function WithdrawModule({ items, onEdit, onDelete }: { items: any[]; onEdit: (item: any) => void; onDelete: (id: string) => void }) {
-  return <Panel title="Withdraw Details"><DataTable headers={["User", "Holder", "UPI Name", "Account", "IFSC", "UPI ID", "Created", "Actions"]}>{items.map((item) => <tr key={item.id}><td className="font-medium">{item.user_name}</td><td>{item.account_holder_name}</td><td>{item.upi_name || "—"}</td><td>{item.account_number}</td><td>{item.ifsc_code}</td><td>{item.upi_id || "—"}</td><td>{formatDate(item.created_at)}</td><td><RowActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id)} /></td></tr>)}</DataTable></Panel>;
+  return <Panel title="Withdraw Details"><DataTable headers={["User", "Holder", "UPI Name", "Account", "IFSC", "UPI ID", "Created", "Actions"]}>{items.map((item) => <tr key={item.id}><td className="font-medium">{item.user_name}</td><td>{item.account_holder_name}</td><td>{item.upi_name || "—"}</td><td>{item.account_number}</td><td>{item.ifsc_code}</td><td>{item.upi_id || "—"}</td><td>{formatDateTime(item.created_at)}</td><td><RowActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id)} /></td></tr>)}</DataTable></Panel>;
 }
 
 export function MarketsModule({ items, onCreate, onEdit, onDelete }: { items: Market[]; onCreate: () => void; onEdit: (item: Market) => void; onDelete: (id: string) => void }) {
@@ -130,7 +130,7 @@ export function MarketsModule({ items, onCreate, onEdit, onDelete }: { items: Ma
             <td className="font-medium">{item.market_name}</td>
 
             <td>{item.open_time}</td>
-            <td className="text-xs">{item.created_at.replace("T", " ").split(".")[0]}</td>
+            <td className="text-xs">{formatDateTime(item.created_at)}</td>
             <td>
               <div className="flex items-center gap-1">
                 <button className="btn-compact border border-primary text-primary px-3 rounded-md" onClick={() => onEdit(item)}>Edit</button>
@@ -184,7 +184,7 @@ export function ResultsModule({
               <td className="font-medium">{marketById.get(item.market_id)?.market_name || "—"}</td>
               <td>{item.open_pana}</td>
               <td>{item.open_digit}</td>
-              <td>{formatDate(item.created_at)}</td>
+              <td>{formatDateTime(item.created_at)}</td>
               <td><RowActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id)} /></td>
             </tr>
           ))
@@ -201,7 +201,7 @@ export function ResultsModule({
 }
 
 export function WinsModule({ items }: { items: WinHistory[] }) {
-  return <Panel title="Win History" action={`${items.length} records`}><DataTable headers={["Market", "Winner", "Phone", "Amount", "Number", "Win Amount", "Created"]}>{items.map((item) => <tr key={item.id}><td>{item.market_name}</td><td className="font-medium">{item.winner_name}</td><td>{item.winner_phone}</td><td>{money.format(item.amount)}</td><td>{item.number_played}</td><td>{money.format(item.win_amount)}</td><td>{formatDate(item.created_at)}</td></tr>)}</DataTable></Panel>;
+  return <Panel title="Win History" action={`${items.length} records`}><DataTable headers={["Market", "Winner", "Phone", "Amount", "Number", "Win Amount", "Created"]}>{items.map((item) => <tr key={item.id}><td>{item.market_name}</td><td className="font-medium">{item.winner_name}</td><td>{item.winner_phone}</td><td>{money.format(item.amount)}</td><td>{item.number_played}</td><td>{money.format(item.win_amount)}</td><td>{formatDateTime(item.created_at)}</td></tr>)}</DataTable></Panel>;
 }
 
 export function RecordsModule({
