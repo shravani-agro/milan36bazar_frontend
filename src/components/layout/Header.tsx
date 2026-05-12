@@ -1,6 +1,7 @@
 import { Menu, RefreshCw, LogOut } from "lucide-react";
 import { GlobalFilters } from "./GlobalFilters";
 import { Market } from "@/lib/mockApi";
+import { realApi } from "@/lib/api";
 
 export function Header({ 
   sidebarOpen, 
@@ -65,7 +66,7 @@ export function Header({
           <button 
             className="btn-secondary h-9 px-3 sm:px-4 text-primary border-primary/20 hover:bg-primary/5" 
             onClick={async () => {
-              const { data, error } = await import("@/lib/api").then(m => m.realApi.db.testNotification());
+              const { data, error } = await realApi.db.testNotification();
               if (error) {
                 // Check if it's the specific serviceAccountKey error
                 const msg = error.message || "Failed to send test notification";
