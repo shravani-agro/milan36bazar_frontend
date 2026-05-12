@@ -145,8 +145,59 @@ export function MarketsModule({ items, onCreate, onEdit, onDelete }: { items: Ma
   );
 }
 
-export function ResultsModule({ items, marketById, onCreate, onEdit, onDelete }: { items: any[]; marketById: Map<string, Market>; onCreate: () => void; onEdit: (item: any) => void; onDelete: (id: string) => void }) {
-  return <Panel title="Results" action={<button className="btn-primary" onClick={onCreate}><Plus className="h-4 w-4" /> Create Result</button>}><DataTable headers={["Date", "Market", "Open Pana", "Open Digit", "Created", "Actions"]}>{items.map((item) => <tr key={item.id}><td>{formatDate(item.result_date)}</td><td className="font-medium">{marketById.get(item.market_id)?.market_name || "—"}</td><td>{item.open_pana}</td><td>{item.open_digit}</td><td>{formatDate(item.created_at)}</td><td><RowActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id)} /></td></tr>)}</DataTable></Panel>;
+export function ResultsModule({
+  items,
+  marketById,
+  filters,
+  updateFilter,
+  onCreate,
+  onEdit,
+  onDelete
+}: {
+  items: any[];
+  marketById: Map<string, Market>;
+  filters: any;
+  updateFilter: (k: string, v: string) => void;
+  onCreate: () => void;
+  onEdit: (item: any) => void;
+  onDelete: (id: string) => void
+}) {
+  return (
+    <Panel title="Results" action={<button className="btn-primary" onClick={onCreate}><Plus className="h-4 w-4" /> Create Result</button>}>
+      <div className="mb-6 flex items-end gap-4">
+        <label className="field-label max-w-[200px]">
+          Filter by Date
+          <input
+            className="field-input w-full"
+            type="date"
+            value={filters.date || today}
+            onChange={(e) => updateFilter("date", e.target.value)}
+          />
+        </label>
+      </div>
+
+      <DataTable headers={["Date", "Market", "Open Pana", "Open Digit", "Created", "Actions"]}>
+        {items.length > 0 ? (
+          items.map((item) => (
+            <tr key={item.id}>
+              <td>{formatDate(item.result_date)}</td>
+              <td className="font-medium">{marketById.get(item.market_id)?.market_name || "—"}</td>
+              <td>{item.open_pana}</td>
+              <td>{item.open_digit}</td>
+              <td>{formatDate(item.created_at)}</td>
+              <td><RowActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id)} /></td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan={6} className="text-center py-8 text-muted-foreground">
+              No results found for {filters.date || "today"}.
+            </td>
+          </tr>
+        )}
+      </DataTable>
+    </Panel>
+  );
 }
 
 export function WinsModule({ items }: { items: WinHistory[] }) {
@@ -177,7 +228,6 @@ export function RecordsModule({
 
     let text = `${marketName} ₹ :\n`;
     text += `Date and Time   ${timeStr.toLowerCase()} ${dateStr}\n`;
-    text += "---------------------------------\n";
 
     text += "Single Digit\n";
     let hasDigits = false;
@@ -199,7 +249,7 @@ export function RecordsModule({
     ];
 
     categories.forEach(cat => {
-      text += "---------------------------------\n";
+
       text += `${cat.label}\n`;
       const display = (record as any)[cat.key];
       if (display) {
@@ -209,7 +259,7 @@ export function RecordsModule({
       }
     });
 
-    text += "---------------------------------\n";
+
     text += `Total  ${record?.total_bid_amount || 0}`;
 
     navigator.clipboard.writeText(text);
@@ -404,7 +454,7 @@ export function CommissionModule({
 
 export function BidsModule({ items, filters, updateFilter }: { items: any[]; filters: any; updateFilter: (k: string, v: string) => void }) {
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   const bidTypeLabels: Record<string, string> = {
     single_digit: "Single Digit",
     single_pana: "Single Pana",
@@ -418,8 +468,8 @@ export function BidsModule({ items, filters, updateFilter }: { items: any[]; fil
 
     if (searchTerm) {
       const lowerSearch = searchTerm.toLowerCase();
-      filtered = filtered.filter(bid => 
-        bid.user_name.toLowerCase().includes(lowerSearch) || 
+      filtered = filtered.filter(bid =>
+        bid.user_name.toLowerCase().includes(lowerSearch) ||
         bid.user_phone.includes(searchTerm)
       );
     }
@@ -443,7 +493,7 @@ export function BidsModule({ items, filters, updateFilter }: { items: any[]; fil
 
       const group = groups.get(marketKey);
       const typeMap = group.types[bid.bid_type];
-      
+
       if (typeMap) {
         if (!typeMap.has(bid.number_played)) {
           typeMap.set(bid.number_played, { total: 0, users: new Map() });
@@ -495,22 +545,22 @@ export function BidsModule({ items, filters, updateFilter }: { items: any[]; fil
             title={`${group.marketName} (${group.openTime})`}
             action={
               <div className="flex gap-2">
-                 <Badge tone="neutral">
-                   Market Total: {money.format(
-                     Object.values(group.types as Record<string, Map<string, any>>).reduce((sum, map) => {
-                       let total = 0;
-                       map.forEach(v => total += (v.total || 0));
-                       return sum + total;
-                     }, 0)
-                   )}
-                 </Badge>
+                <Badge tone="neutral">
+                  Market Total: {money.format(
+                    Object.values(group.types as Record<string, Map<string, any>>).reduce((sum, map) => {
+                      let total = 0;
+                      map.forEach(v => total += (v.total || 0));
+                      return sum + total;
+                    }, 0)
+                  )}
+                </Badge>
               </div>
             }
           >
             <div className="space-y-6">
               {Object.entries(group.types).map(([type, numberMap]: [string, any]) => {
                 if (numberMap.size === 0) return null;
-                
+
                 const sortedNumbers = Array.from(numberMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0], undefined, { numeric: true }));
 
                 return (
