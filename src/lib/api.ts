@@ -117,11 +117,12 @@ export const realApi = {
         return { data: null, error: err.response?.data || { message: err.message } };
       }
     },
-    testNotification: async () => {
+    testNotification: async (token?: string) => {
       try {
         const res = await api.post("/api/test-notification", { 
           title: "Test Notification", 
-          body: "This is a test notification from Milan 36 Bazar Admin console." 
+          body: "This is a test notification from Milan 36 Bazar Admin console.",
+          token: token
         });
         return { data: res.data, error: null };
       } catch (err: any) {

@@ -66,7 +66,8 @@ export function Header({
           <button 
             className="btn-secondary h-9 px-3 sm:px-4 text-primary border-primary/20 hover:bg-primary/5" 
             onClick={async () => {
-              const { data, error } = await realApi.db.testNotification();
+              const token = prompt("Enter FCM Token for direct test (leave empty for Topic test):");
+              const { data, error } = await realApi.db.testNotification(token || undefined);
               if (error) {
                 // Check if it's the specific serviceAccountKey error
                 const msg = error.message || "Failed to send test notification";
