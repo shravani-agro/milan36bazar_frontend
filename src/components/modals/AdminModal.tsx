@@ -14,7 +14,7 @@ export type ModalState =
   | { kind: "win"; mode: "create"; item?: WinHistory }
   | null;
 
-const today = new Date().toISOString().slice(0, 10);
+const getToday = () => new Date().toISOString().slice(0, 10);
 
 function formText(form: FormData, key: string) { return String(form.get(key) ?? "").trim(); }
 function optional(value: string) { return value.trim() ? value.trim() : null; }

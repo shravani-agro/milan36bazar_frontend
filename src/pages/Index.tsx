@@ -39,7 +39,7 @@ type Filters = {
 };
 
 const getToday = () => new Date().toISOString().slice(0, 10);
-const emptyFilters: Filters = { status: "all", marketId: "all", date: getToday() };
+const getEmptyFilters = (): Filters => ({ status: "all", marketId: "all", date: getToday() });
 
 const navItems: Array<{ id: Section; label: string; icon: any }> = [
   { id: "dashboard", label: "Dashboard", icon: Gauge },
@@ -66,7 +66,7 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [section, setSection] = useState<Section>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [filters, setFilters] = useState<Filters>(emptyFilters);
+  const [filters, setFilters] = useState<Filters>(getEmptyFilters);
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState<ModalState>(null);
   const [users, setUsers] = useState<AppUser[]>([]);
@@ -243,7 +243,7 @@ function App() {
           loadAll={() => void loadAll()}
           handleLogout={handleLogout}
           updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))}
-          resetFilters={() => setFilters({ ...emptyFilters, date: getToday() })}
+          resetFilters={() => setFilters(getEmptyFilters())}
         />
 
         <div className="p-4 lg:p-6">
