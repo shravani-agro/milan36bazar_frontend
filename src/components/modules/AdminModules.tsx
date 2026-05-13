@@ -760,7 +760,7 @@ export function SubAdminOverviewModule({
                             {bid.number_played}
                           </td>
                           <td className="px-4 py-2">
-                            <Badge tone={bid.status === "won" ? "positive" : bid.status === "lost" ? "negative" : "neutral"}>
+                            <Badge tone={bid.status === "won" ? "success" : bid.status === "lost" ? "danger" : "neutral"}>
                               {bid.status}
                             </Badge>
                           </td>
