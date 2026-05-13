@@ -276,6 +276,16 @@ function AuthScreen() {
       <section className="dashboard-panel w-full max-w-md p-6">
         <div className="mb-6 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-md bg-primary text-primary-foreground"><Lock className="h-6 w-6" /></div><div><h1 className="text-2xl font-semibold">milan36bazar Admin</h1><p className="text-sm text-muted-foreground">Secure gaming operations console</p></div></div>
         <form onSubmit={submit} className="space-y-4"><label className="field-label">Username<input className="field-input" type="text" value={email} onChange={(e) => setEmail(e.target.value)} required /></label><label className="field-label">Password<input className="field-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label><button className="btn-primary w-full" disabled={busy}>{busy ? "Please wait…" : "Login"}</button></form>
+        
+        <div className="mt-8 pt-6 border-t border-border/50 text-center">
+          <a 
+            href="/apk" 
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-medium"
+          >
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+            Download milan36bazar App
+          </a>
+        </div>
       </section>
     </main>
   );
