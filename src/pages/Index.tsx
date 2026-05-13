@@ -187,7 +187,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
         if (m) {
           // Store numeric sum for totals calculation
           const sum = Array.from(m.values()).reduce((a, b) => a + b, 0);
-          rec[type as keyof MarketRecord] = sum as any;
+          (rec as any)[type] = sum;
           
           // Store display string for the table cell
           (rec as any)[`${type}_display`] = Array.from(m.entries())
@@ -276,7 +276,16 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
           {section === "results" && <ResultsModule items={filteredResults} marketById={marketById} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} onCreate={() => setModal({ kind: "result", mode: "create" })} onEdit={(item) => setModal({ kind: "result", mode: "edit", item })} onDelete={(id) => remove("results", id, "result")} />}
           {section === "wins" && <WinsModule items={wins} />}
           {section === "records" && <RecordsModule items={filteredRecords} markets={markets} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
-          {section === "commission" && <CommissionModule users={users} bids={bids} wins={wins} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
+          {section === "commission" && (
+            <CommissionModule 
+              users={users} 
+              bids={bids} 
+              wins={wins} 
+              filters={filters} 
+              updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} 
+              assignedUserIds={(session?.user as any)?.assigned_user_ids ? (session.user as any).assigned_user_ids.split(",") : undefined}
+            />
+          )}
           {section === "bids" && <BidsModule items={detailedBids} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "subadmins" && <SubAdminsModule items={subAdmins} onCreate={() => setModal({ kind: "sub_admin", mode: "create" })} onEdit={(item) => setModal({ kind: "sub_admin", mode: "edit", item })} onDelete={(id) => remove("sub_admins", id, "sub admin")} />}
 

@@ -16,6 +16,38 @@ export function UserSelect({ users, defaultValue }: { users: AppUser[]; defaultV
   );
 }
 
+export function UserMultiSelect({ users, selectedIds = [] }: { users: AppUser[]; selectedIds?: string[] }) {
+  const [selected, setSelected] = useState<string[]>(selectedIds);
+  
+  const toggle = (id: string) => {
+    setSelected(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  return (
+    <div className="md:col-span-2">
+      <label className="field-label mb-2">Assign Users (these will show in sub-admin's commission report)</label>
+      <input type="hidden" name="assigned_user_ids" value={selected.join(",")} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-[300px] overflow-y-auto p-3 border border-border rounded-md bg-muted/20">
+        {users.map((user) => (
+          <label key={user.id} className="flex items-center gap-2 p-2 hover:bg-muted/50 rounded cursor-pointer transition-colors">
+            <input 
+              type="checkbox" 
+              checked={selected.includes(String(user.id))} 
+              onChange={() => toggle(String(user.id))}
+              className="w-4 h-4 accent-primary"
+            />
+            <div className="text-sm">
+              <p className="font-medium">{user.name}</p>
+              <p className="text-xs text-muted-foreground">{user.phone}</p>
+            </div>
+          </label>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground mt-2">{selected.length} users selected</p>
+    </div>
+  );
+}
+
 export function MarketSelect({ markets, defaultValue }: { markets: Market[]; defaultValue?: string }) {
   return (
     <label className="field-label">

@@ -388,18 +388,25 @@ export function CommissionModule({
   bids,
   wins,
   filters,
-  updateFilter
+  updateFilter,
+  assignedUserIds
 }: {
   users: AppUser[];
   bids: Bid[];
   wins: WinHistory[];
   filters: any;
-  updateFilter: (k: string, v: string) => void
+  updateFilter: (k: string, v: string) => void;
+  assignedUserIds?: string[];
 }) {
   const selectedDate = filters.date || getToday();
 
   const userStats = useMemo(() => {
-    return users.map(user => {
+    let filteredUsers = users;
+    if (assignedUserIds) {
+      filteredUsers = users.filter(u => assignedUserIds.includes(String(u.id)));
+    }
+
+    return filteredUsers.map(user => {
       const dailyBids = bids.filter(b => b.app_user_id === user.id && b.bid_date === selectedDate);
       const dailyWins = wins.filter(w => w.app_user_id === user.id && w.created_at.startsWith(selectedDate));
 
@@ -516,7 +523,7 @@ export function BidsModule({ items, filters, updateFilter }: { items: any[]; fil
             <input
               type="date"
               className="field-input"
-              value={filters.date || today}
+              value={filters.date || getToday()}
               onChange={(e) => updateFilter("date", e.target.value)}
             />
           </label>

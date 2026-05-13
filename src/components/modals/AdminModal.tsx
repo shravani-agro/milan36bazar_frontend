@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { realApi as mockApi } from "@/lib/api";
 import { AppUser, Market, WithdrawDetail, ResultRecord, WinHistory } from "@/lib/mockApi";
 import { Field, getToday } from "../ui/AdminUI";
-import { EntityForm, UserSelect, MarketSelect, ResultFormFields } from "./AdminForms";
+import { EntityForm, UserSelect, MarketSelect, ResultFormFields, UserMultiSelect } from "./AdminForms";
 
 export type ModalState =
   | { kind: "user"; mode: "create" | "edit"; item?: AppUser }
@@ -75,6 +75,7 @@ export function AdminModal({ modal, users, markets, onClose, onSaved }: { modal:
                 {
                   username: formText(form, "username"),
                   password: formText(form, "password"),
+                  assigned_user_ids: formText(form, "assigned_user_ids"),
                 },
                 modal.item?.id
               )
@@ -83,6 +84,7 @@ export function AdminModal({ modal, users, markets, onClose, onSaved }: { modal:
               <>
                 <Field name="username" label="Username" defaultValue={modal.item?.username} required />
                 <Field name="password" label="Password" defaultValue={modal.item?.password} required />
+                <UserMultiSelect users={users} selectedIds={modal.item?.assigned_user_ids ? modal.item.assigned_user_ids.split(",") : []} />
               </>
             }
           />
