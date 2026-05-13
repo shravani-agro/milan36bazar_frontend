@@ -30,7 +30,7 @@ import { CircleDollarSign } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 
-type Section = "dashboard" | "users" | "markets" | "results" | "wins" | "records" | "commission" | "bids" | "subadmins";
+type Section = "dashboard" | "users" | "markets" | "results" | "wins" | "records" | "commission" | "bids" | "subadmins" | "overview";
 
 type Filters = {
   status: string;
@@ -43,6 +43,7 @@ const getEmptyFilters = (): Filters => ({ status: "all", marketId: "all", date: 
 
 const navItems: Array<{ id: Section; label: string; icon: any }> = [
   { id: "dashboard", label: "Dashboard", icon: Gauge },
+  { id: "overview", label: "Overview", icon: BarChart3 },
   { id: "users", label: "Users", icon: Users },
   { id: "markets", label: "Markets", icon: DoorOpen },
   { id: "bids", label: "All Bids", icon: ListFilter },
@@ -102,7 +103,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
   const filteredNavItems = useMemo(() => {
     const role = (session?.user as any)?.role;
     if (role === "subadmin") {
-      return navItems.filter(item => ["results", "records", "commission"].includes(item.id));
+      return navItems.filter(item => ["overview", "results", "records", "commission"].includes(item.id));
     }
     return navItems;
   }, [session]);
@@ -110,8 +111,8 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
   useEffect(() => {
     if (session) {
       const role = (session.user as any)?.role;
-      if (role === "subadmin" && section === "dashboard") {
-        setSection("results");
+      if (role === "subadmin" && (section === "dashboard" || section === "results")) {
+        setSection("overview");
       }
       void loadAll();
       const interval = window.setInterval(() => void loadAll(false), 15000);
