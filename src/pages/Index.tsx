@@ -272,6 +272,17 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
 
         <div className="p-4 lg:p-6">
           {section === "dashboard" && <Dashboard users={users} bids={bids} wins={wins} markets={markets} analytics={analytics} setSection={setSection} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
+          {section === "overview" && (
+            <SubAdminOverviewModule 
+              users={users} 
+              bids={bids} 
+              wins={wins} 
+              markets={markets}
+              filters={filters} 
+              updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} 
+              assignedUserIds={(session?.user as any)?.assigned_user_ids ? (session.user as any).assigned_user_ids.split(",") : undefined}
+            />
+          )}
           {section === "users" && <UsersModule users={users} onCreate={() => setModal({ kind: "user", mode: "create" })} onEdit={(item) => setModal({ kind: "user", mode: "edit", item })} onDelete={(id) => remove("app_users", id, "user")} />}
           {section === "markets" && <MarketsModule items={filteredMarkets} onCreate={() => setModal({ kind: "market", mode: "create" })} onEdit={(item) => setModal({ kind: "market", mode: "edit", item })} onDelete={(id) => remove("markets", id, "market")} />}
           {section === "results" && <ResultsModule items={filteredResults} marketById={marketById} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} onCreate={() => setModal({ kind: "result", mode: "create" })} onEdit={(item) => setModal({ kind: "result", mode: "edit", item })} onDelete={(id) => remove("results", id, "result")} />}

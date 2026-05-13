@@ -638,3 +638,149 @@ export function SubAdminsModule({ items, onCreate, onEdit, onDelete }: { items: 
     </Panel>
   );
 }
+export function SubAdminOverviewModule({
+  users,
+  bids,
+  wins,
+  markets,
+  filters,
+  updateFilter,
+  assignedUserIds
+}: {
+  users: AppUser[];
+  bids: Bid[];
+  wins: WinHistory[];
+  markets: Market[];
+  filters: any;
+  updateFilter: (k: string, v: string) => void;
+  assignedUserIds?: string[];
+}) {
+  const selectedDate = filters.date || getToday();
+  const selectedMarketId = filters.marketId || "all";
+
+  const userStats = useMemo(() => {
+    let filteredUsers = users;
+    if (assignedUserIds) {
+      filteredUsers = users.filter(u => assignedUserIds.includes(String(u.id)));
+    }
+
+    return filteredUsers.map(user => {
+      const dailyBids = bids.filter(b => 
+        b.app_user_id === user.id && 
+        b.bid_date === selectedDate &&
+        (selectedMarketId === "all" || String(b.market_id) === String(selectedMarketId))
+      );
+      
+      const dailyWins = wins.filter(w => 
+        w.app_user_id === user.id && 
+        w.created_at.startsWith(selectedDate) &&
+        (selectedMarketId === "all" || String(w.market_id) === String(selectedMarketId))
+      );
+
+      const totalBid = dailyBids.reduce((sum, b) => sum + b.amount, 0);
+      const totalWon = dailyWins.reduce((sum, w) => sum + w.win_amount, 0);
+      const commission = (totalBid * (user.commission || 0)) / 100;
+
+      return {
+        ...user,
+        totalBid,
+        totalWon,
+        commission,
+        bids: dailyBids,
+        wins: dailyWins
+      };
+    }).filter(u => u.totalBid > 0 || u.totalWon > 0);
+  }, [users, bids, wins, selectedDate, selectedMarketId, assignedUserIds]);
+
+  return (
+    <div className="space-y-6">
+      <Panel title="Market Overview">
+        <div className="flex flex-wrap items-end gap-6">
+          <label className="field-label flex-1 min-w-[150px]">
+            Date
+            <input
+              className="field-input w-full"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => updateFilter("date", e.target.value)}
+            />
+          </label>
+          <label className="field-label flex-1 min-w-[150px]">
+            Market Name
+            <select
+              className="field-input w-full"
+              value={selectedMarketId}
+              onChange={(e) => updateFilter("marketId", e.target.value)}
+            >
+              <option value="all">All Markets</option>
+              {markets.map((m) => <option key={m.id} value={m.id}>{m.market_name}</option>)}
+            </select>
+          </label>
+        </div>
+      </Panel>
+
+      <div className="grid gap-6">
+        {userStats.length > 0 ? (
+          userStats.map((user) => (
+            <Panel 
+              key={user.id} 
+              title={user.name} 
+              action={
+                <div className="flex gap-4 text-sm font-medium">
+                  <span className="text-primary">Bid: {money.format(user.totalBid)}</span>
+                  <span className="text-green-600">Comm: {money.format(user.commission)}</span>
+                  <span className="text-blue-600">Won: {money.format(user.totalWon)}</span>
+                </div>
+              }
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-muted/50 border-b border-border">
+                    <tr>
+                      <th className="px-4 py-2">Points</th>
+                      <th className="px-4 py-2">Won Amount</th>
+                      <th className="px-4 py-2">Digit/Pana</th>
+                      <th className="px-4 py-2">Status</th>
+                      <th className="px-4 py-2 text-right">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {user.bids.map((bid) => {
+                      const winRecord = user.wins.find(w => w.number_played === bid.number_played && w.amount === bid.amount);
+                      return (
+                        <tr key={bid.id} className="hover:bg-muted/30 transition-colors">
+                          <td className="px-4 py-2 font-medium">₹{bid.amount}</td>
+                          <td className="px-4 py-2 text-green-600 font-bold">
+                            {winRecord ? money.format(winRecord.win_amount) : "—"}
+                          </td>
+                          <td className="px-4 py-2">
+                            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded text-xs font-bold mr-2">
+                              {bid.bid_type.replace("_", " ")}
+                            </span>
+                            {bid.number_played}
+                          </td>
+                          <td className="px-4 py-2">
+                            <Badge tone={bid.status === "won" ? "positive" : bid.status === "lost" ? "negative" : "neutral"}>
+                              {bid.status}
+                            </Badge>
+                          </td>
+                          <td className="px-4 py-2 text-right text-muted-foreground text-xs">
+                            {formatDateTime(bid.created_at)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </Panel>
+          ))
+        ) : (
+          <div className="py-20 text-center bg-card rounded-xl border border-dashed border-border text-muted-foreground">
+            No data found for the selected filters.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
