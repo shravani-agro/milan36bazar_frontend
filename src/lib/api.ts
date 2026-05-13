@@ -86,6 +86,7 @@ export const realApi = {
         let endpoint = `/api/${table}`;
         if (table === "app_users") endpoint = "/api/create/users";
         if (table === "markets") endpoint = "/api/create/markets";
+        if (table === "sub_admins") endpoint = "/api/create/sub_admins";
 
         const res = await api.post(endpoint, item);
         return { data: res.data, error: null };

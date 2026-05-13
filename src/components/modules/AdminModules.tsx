@@ -609,3 +609,25 @@ export function BidsModule({ items, filters, updateFilter }: { items: any[]; fil
     </div>
   );
 }
+export function SubAdminsModule({ items, onCreate, onEdit, onDelete }: { items: any[]; onCreate: () => void; onEdit: (item: any) => void; onDelete: (id: string) => void }) {
+  return (
+    <Panel title="Sub Admins" action={<button className="btn-primary" onClick={onCreate}><UserPlus className="h-4 w-4" /> Create Sub Admin</button>}>
+      <DataTable headers={["ID", "Username", "Password", "Created At", "Action"]}>
+        {items.map((item, idx) => (
+          <tr key={item.id}>
+            <td>{idx + 1}</td>
+            <td className="font-medium text-primary">{item.username}</td>
+            <td>{item.password}</td>
+            <td className="text-xs">{formatDateTime(item.created_at)}</td>
+            <td>
+              <div className="flex flex-wrap gap-1">
+                <button className="btn-compact border border-primary text-primary" onClick={() => onEdit(item)}>Edit</button>
+                <button className="btn-compact border border-red-500 text-red-500" onClick={() => onDelete(item.id)}>Delete</button>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </DataTable>
+    </Panel>
+  );
+}

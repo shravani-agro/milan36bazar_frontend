@@ -12,6 +12,7 @@ export type ModalState =
   | { kind: "market"; mode: "create" | "edit"; item?: Market }
   | { kind: "result"; mode: "create" | "edit"; item?: ResultRecord }
   | { kind: "win"; mode: "create"; item?: WinHistory }
+  | { kind: "sub_admin"; mode: "create" | "edit"; item?: any }
   | null;
 
 function formText(form: FormData, key: string) { return String(form.get(key) ?? "").trim(); }
@@ -65,6 +66,27 @@ export function AdminModal({ modal, users, markets, onClose, onSaved }: { modal:
         {modal.kind === "withdraw" && <EntityForm busy={busy} onSubmit={(form) => submit("withdraw_details", { app_user_id: Number(form.get("app_user_id")), user_name: selectedUserName(form, users), account_holder_name: formText(form, "account_holder_name"), upi_name: optional(formText(form, "upi_name")), account_number: formText(form, "account_number"), ifsc_code: formText(form, "ifsc_code").toUpperCase(), upi_id: optional(formText(form, "upi_id")) }, modal.item?.id)} fields={<><UserSelect users={users} defaultValue={modal.item?.app_user_id || ""} /><Field name="user_name" label="User Name" defaultValue={modal.item?.user_name} required /><Field name="account_holder_name" label="Account Holder Name" defaultValue={modal.item?.account_holder_name} required /><Field name="upi_name" label="UPI Name" defaultValue={modal.item?.upi_name || ""} /><Field name="account_number" label="Account Number" defaultValue={modal.item?.account_number} required /><Field name="ifsc_code" label="IFSC Code" defaultValue={modal.item?.ifsc_code} required /><Field name="upi_id" label="UPI ID" defaultValue={modal.item?.upi_id || ""} /></>} />}
         {modal.kind === "market" && <EntityForm busy={busy} onSubmit={(form) => submit("markets", { market_name: formText(form, "market_name"), open_time: formText(form, "open_time") }, modal.item?.id)} fields={<><Field name="market_name" label="Name" defaultValue={modal.item?.market_name} required /><Field name="open_time" label="Open Time" type="time" defaultValue={modal.item?.open_time} required /></>} />}
         {modal.kind === "result" && <EntityForm busy={busy} onSubmit={(form) => submitResult(form)} fields={<ResultFormFields markets={markets} item={modal.item} />} />}
+        {modal.kind === "sub_admin" && (
+          <EntityForm
+            busy={busy}
+            onSubmit={(form) =>
+              submit(
+                "sub_admins",
+                {
+                  username: formText(form, "username"),
+                  password: formText(form, "password"),
+                },
+                modal.item?.id
+              )
+            }
+            fields={
+              <>
+                <Field name="username" label="Username" defaultValue={modal.item?.username} required />
+                <Field name="password" label="Password" defaultValue={modal.item?.password} required />
+              </>
+            }
+          />
+        )}
       </div>
     </div>
   );

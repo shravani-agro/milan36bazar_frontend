@@ -25,12 +25,12 @@ import type { AppUser, Market, WithdrawDetail, ResultRecord, Bid, WinHistory, Ba
 
 import { money, formatDate, getToday } from "@/components/ui/AdminUI";
 import { AdminModal, ModalState } from "@/components/modals/AdminModal";
-import { Dashboard, UsersModule, MarketsModule, ResultsModule, WinsModule, RecordsModule, CommissionModule, BidsModule } from "@/components/modules/AdminModules";
+import { Dashboard, UsersModule, MarketsModule, ResultsModule, WinsModule, RecordsModule, CommissionModule, BidsModule, SubAdminsModule } from "@/components/modules/AdminModules";
 import { CircleDollarSign } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 
-type Section = "dashboard" | "users" | "markets" | "results" | "wins" | "records" | "commission" | "bids";
+type Section = "dashboard" | "users" | "markets" | "results" | "wins" | "records" | "commission" | "bids" | "subadmins";
 
 type Filters = {
   status: string;
@@ -50,6 +50,7 @@ const navItems: Array<{ id: Section; label: string; icon: any }> = [
   { id: "wins", label: "Win History", icon: History },
   { id: "records", label: "Bids Data", icon: Database },
   { id: "commission", label: "Commission", icon: CircleDollarSign },
+  { id: "subadmins", label: "Sub Admins", icon: ShieldCheck },
 ];
 
 const numberOrZero = (value: unknown) => Number(value ?? 0);
@@ -61,7 +62,7 @@ const bidTypeLabels: Record<Bid["bid_type"], string> = {
   triple_pana: "Triple Pana",
 };
 
-function App() {
+function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [section, setSection] = useState<Section>("dashboard");
@@ -78,6 +79,7 @@ function App() {
   const [records, setRecords] = useState<MarketRecord[]>([]);
   const [transactions, setTransactions] = useState<BalanceTransaction[]>([]);
   const [detailedBids, setDetailedBids] = useState<any[]>([]);
+  const [subAdmins, setSubAdmins] = useState<any[]>([]);
 
   useEffect(() => {
     const { data: listener } = mockApi.auth.onAuthStateChange((_event, nextSession) => setSession(nextSession));
@@ -86,10 +88,31 @@ function App() {
   }, []);
 
   const sessionUserId = session?.user?.id;
-  useEffect(() => { if (sessionUserId) setIsAdmin(true); }, [sessionUserId]);
+  useEffect(() => {
+    if (session) {
+      const role = (session.user as any)?.role;
+      if (role === "admin") {
+        setIsAdmin(true);
+      } else if (role === "subadmin") {
+        setIsAdmin(false); // They are sub-admin
+      }
+    }
+  }, [session]);
+
+  const filteredNavItems = useMemo(() => {
+    const role = (session?.user as any)?.role;
+    if (role === "subadmin") {
+      return navItems.filter(item => ["results", "records", "commission"].includes(item.id));
+    }
+    return navItems;
+  }, [session]);
 
   useEffect(() => {
-    if (session && isAdmin) {
+    if (session) {
+      const role = (session.user as any)?.role;
+      if (role === "subadmin" && section === "dashboard") {
+        setSection("results");
+      }
       void loadAll();
       const interval = window.setInterval(() => void loadAll(false), 15000);
       return () => window.clearInterval(interval);
@@ -200,7 +223,7 @@ function App() {
       setUsers(data.app_users || []); setMarkets(data.markets || []);
       setResults(data.results || []); setBids(data.bids || []); setWins(data.win_history || []);
       setRecords(data.market_bid_records || []); setTransactions(data.balance_transactions || []);
-      setWithdrawDetails(data.withdraw_details || []);
+      setWithdrawDetails(data.withdraw_details || []); setSubAdmins(data.sub_admins || []);
     }
     
     const { data: bidData } = await mockApi.db.getAllBids();
@@ -228,7 +251,7 @@ function App() {
         setSidebarOpen={setSidebarOpen}
         section={section}
         setSection={setSection}
-        navItems={navItems}
+        navItems={filteredNavItems}
       />
 
       <section className="min-w-0 flex-1">
@@ -236,7 +259,7 @@ function App() {
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           section={section}
-          navItems={navItems}
+          navItems={filteredNavItems}
           filters={filters}
           markets={markets}
           loading={loading}
@@ -255,6 +278,7 @@ function App() {
           {section === "records" && <RecordsModule items={filteredRecords} markets={markets} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "commission" && <CommissionModule users={users} bids={bids} wins={wins} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "bids" && <BidsModule items={detailedBids} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
+          {section === "subadmins" && <SubAdminsModule items={subAdmins} onCreate={() => setModal({ kind: "sub_admin", mode: "create" })} onEdit={(item) => setModal({ kind: "sub_admin", mode: "edit", item })} onDelete={(id) => remove("sub_admins", id, "sub admin")} />}
 
         </div>
       </section>
@@ -274,7 +298,15 @@ function AuthScreen() {
   return (
     <main className="auth-screen min-h-screen bg-background text-foreground grid place-items-center">
       <section className="dashboard-panel w-full max-w-md p-6">
-        <div className="mb-6 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-md bg-primary text-primary-foreground"><Lock className="h-6 w-6" /></div><div><h1 className="text-2xl font-semibold">milan36bazar Admin</h1><p className="text-sm text-muted-foreground">Secure gaming operations console</p></div></div>
+        <div className="mb-6 flex items-center gap-3">
+          <div className="grid h-12 w-12 place-items-center rounded-md bg-primary text-primary-foreground">
+            <Lock className="h-6 w-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold">{isSubAdminPortal ? "milan36bazar Sub-Admin" : "milan36bazar Admin"}</h1>
+            <p className="text-sm text-muted-foreground">{isSubAdminPortal ? "Sub-admin access portal" : "Secure gaming operations console"}</p>
+          </div>
+        </div>
         <form onSubmit={submit} className="space-y-4"><label className="field-label">Username<input className="field-input" type="text" value={email} onChange={(e) => setEmail(e.target.value)} required /></label><label className="field-label">Password<input className="field-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label><button className="btn-primary w-full" disabled={busy}>{busy ? "Please wait…" : "Login"}</button></form>
         
         <div className="mt-8 pt-6 border-t border-border/50 text-center">
