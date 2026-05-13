@@ -240,7 +240,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
 
   const handleLogout = async () => { await mockApi.auth.signOut(); setSection("dashboard"); };
 
-  if (!session) return <AuthScreen />;
+  if (!session) return <AuthScreen isSubAdminPortal={isSubAdminPortal} />;
 
   return (
     <main className="min-h-screen bg-background text-foreground flex">
@@ -288,7 +288,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
   );
 }
 
-function AuthScreen() {
+function AuthScreen({ isSubAdminPortal }: { isSubAdminPortal: boolean }) {
   const [email, setEmail] = useState(""); const [password, setPassword] = useState(""); const [busy, setBusy] = useState(false);
   async function submit(event: FormEvent) {
     event.preventDefault(); setBusy(true);
