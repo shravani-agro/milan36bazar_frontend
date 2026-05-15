@@ -108,8 +108,8 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
         if (item.id === "overview") return true; // Overview always shown
         if (item.id === "commission") return user.show_commission !== false;
         if (item.id === "results") return user.show_result !== false;
-        if (item.id === "records" || item.id === "bids") return user.show_bid_data !== false;
-        return false; // Hide others for subadmin
+        if (item.id === "records") return user.show_bid_data !== false;
+        return false; // Hide others for subadmin (including 'bids')
       });
     }
     return navItems;
