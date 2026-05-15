@@ -152,7 +152,10 @@ export function ResultsModule({
   updateFilter,
   onCreate,
   onEdit,
-  onDelete
+  onDelete,
+  canAdd = true,
+  canUpdate = true,
+  canDelete = true
 }: {
   items: any[];
   marketById: Map<string, Market>;
@@ -160,10 +163,16 @@ export function ResultsModule({
   updateFilter: (k: string, v: string) => void;
   onCreate: () => void;
   onEdit: (item: any) => void;
-  onDelete: (id: string) => void
+  onDelete: (id: string) => void;
+  canAdd?: boolean;
+  canUpdate?: boolean;
+  canDelete?: boolean;
 }) {
   return (
-    <Panel title="Results" action={<button className="btn-primary" onClick={onCreate}><Plus className="h-4 w-4" /> Create Result</button>}>
+    <Panel 
+      title="Results" 
+      action={canAdd && <button className="btn-primary" onClick={onCreate}><Plus className="h-4 w-4" /> Create Result</button>}
+    >
       <div className="mb-6 flex items-end gap-4">
         <label className="field-label max-w-[200px]">
           Filter by Date
@@ -176,7 +185,7 @@ export function ResultsModule({
         </label>
       </div>
 
-      <DataTable headers={["Date", "Market", "Open Pana", "Open Digit", "Created", "Actions"]}>
+      <DataTable headers={["Date", "Market", "Open Pana", "Open Digit", "Created", (canUpdate || canDelete) ? "Actions" : ""]}>
         {items.length > 0 ? (
           items.map((item) => (
             <tr key={item.id}>
@@ -185,7 +194,14 @@ export function ResultsModule({
               <td>{item.open_pana}</td>
               <td>{item.open_digit}</td>
               <td>{formatDateTime(item.created_at)}</td>
-              <td><RowActions onEdit={() => onEdit(item)} onDelete={() => onDelete(item.id)} /></td>
+              <td>
+                {(canUpdate || canDelete) && (
+                  <RowActions 
+                    onEdit={canUpdate ? () => onEdit(item) : undefined} 
+                    onDelete={canDelete ? () => onDelete(item.id) : undefined} 
+                  />
+                )}
+              </td>
             </tr>
           ))
         ) : (

@@ -1,4 +1,4 @@
-import { useState, ReactNode } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { AppUser, Market, ResultRecord } from "@/lib/mockApi";
 import { Field, getToday } from "../ui/AdminUI";
 
@@ -18,14 +18,35 @@ export function UserSelect({ users, defaultValue }: { users: AppUser[]; defaultV
 
 export function UserMultiSelect({ users, selectedIds = [] }: { users: AppUser[]; selectedIds?: string[] }) {
   const [selected, setSelected] = useState<string[]>(selectedIds);
+
+  useEffect(() => {
+    setSelected(selectedIds);
+  }, [selectedIds]);
   
   const toggle = (id: string) => {
     setSelected(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
+  const toggleAll = () => {
+    if (selected.length === users.length) {
+      setSelected([]);
+    } else {
+      setSelected(users.map(u => String(u.id)));
+    }
+  };
+
   return (
     <div className="md:col-span-2">
-      <label className="field-label mb-2">Assign Users (these will show in sub-admin's commission report)</label>
+      <div className="flex items-center justify-between mb-2">
+        <label className="field-label mb-0">Assign Users (these will show in sub-admin's commission report)</label>
+        <button 
+          type="button" 
+          onClick={toggleAll}
+          className="text-xs font-medium text-primary hover:underline px-2 py-1 rounded hover:bg-primary/10 transition-colors"
+        >
+          {selected.length === users.length ? "Deselect All" : "Select All"}
+        </button>
+      </div>
       <input type="hidden" name="assigned_user_ids" value={selected.join(",")} />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-[300px] overflow-y-auto p-3 border border-border rounded-md bg-muted/20">
         {users.map((user) => (
@@ -88,6 +109,54 @@ export function ResultFormFields({ markets, item }: { markets: Market[]; item?: 
         <input className="field-input bg-muted/30 font-bold" name="open_digit" type="number" value={digit} readOnly required />
       </label>
     </>
+  );
+}
+
+export function PermissionSelect({ item }: { item?: any }) {
+  const [perms, setPerms] = useState({
+    can_add_result: item?.can_add_result ?? true,
+    can_update_result: item?.can_update_result ?? true,
+    can_delete_result: item?.can_delete_result ?? true,
+    show_commission: item?.show_commission ?? true,
+    show_overview: item?.show_overview ?? true,
+    show_bid_data: item?.show_bid_data ?? true,
+    show_result: item?.show_result ?? true,
+  });
+
+  const toggle = (key: string) => {
+    setPerms((prev: any) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const labels: Record<string, string> = {
+    can_add_result: "Add Result",
+    can_update_result: "Update Result",
+    can_delete_result: "Delete Result",
+    show_commission: "Show Commission",
+    show_overview: "Show Overview",
+    show_bid_data: "Show Bid Data",
+    show_result: "Show Results Section",
+  };
+
+  return (
+    <div className="md:col-span-2 border-t border-border pt-4 mt-2">
+      <label className="field-label mb-3 text-primary font-bold">Sub-Admin Permissions</label>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {Object.entries(labels).map(([key, label]) => (
+          <label key={key} className="flex items-center gap-2 p-3 hover:bg-muted/50 rounded-lg cursor-pointer transition-colors border border-border/50 bg-muted/10">
+            <input 
+              type="checkbox" 
+              name={key}
+              checked={!!perms[key as keyof typeof perms]} 
+              onChange={() => toggle(key)}
+              className="w-4 h-4 accent-primary"
+              value="true"
+            />
+            <span className="text-sm font-medium">{label}</span>
+            <input type="hidden" name={`${key}_hidden`} value={perms[key as keyof typeof perms] ? "true" : "false"} />
+          </label>
+        ))}
+      </div>
+    </div>
   );
 }
 

@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { realApi as mockApi } from "@/lib/api";
 import { AppUser, Market, WithdrawDetail, ResultRecord, WinHistory } from "@/lib/mockApi";
 import { Field, getToday } from "../ui/AdminUI";
-import { EntityForm, UserSelect, MarketSelect, ResultFormFields, UserMultiSelect } from "./AdminForms";
+import { EntityForm, UserSelect, MarketSelect, ResultFormFields, UserMultiSelect, PermissionSelect } from "./AdminForms";
 
 export type ModalState =
   | { kind: "user"; mode: "create" | "edit"; item?: AppUser }
@@ -76,6 +76,13 @@ export function AdminModal({ modal, users, markets, onClose, onSaved }: { modal:
                   username: formText(form, "username"),
                   password: formText(form, "password"),
                   assigned_user_ids: formText(form, "assigned_user_ids"),
+                  can_add_result: form.get("can_add_result_hidden") === "true",
+                  can_update_result: form.get("can_update_result_hidden") === "true",
+                  can_delete_result: form.get("can_delete_result_hidden") === "true",
+                  show_commission: form.get("show_commission_hidden") === "true",
+                  show_overview: form.get("show_overview_hidden") === "true",
+                  show_bid_data: form.get("show_bid_data_hidden") === "true",
+                  show_result: form.get("show_result_hidden") === "true",
                 },
                 modal.item?.id
               )
@@ -85,6 +92,7 @@ export function AdminModal({ modal, users, markets, onClose, onSaved }: { modal:
                 <Field name="username" label="Username" defaultValue={modal.item?.username} required />
                 <Field name="password" label="Password" defaultValue={modal.item?.password} required />
                 <UserMultiSelect users={users} selectedIds={modal.item?.assigned_user_ids ? modal.item.assigned_user_ids.split(",") : []} />
+                <PermissionSelect item={modal.item} />
               </>
             }
           />

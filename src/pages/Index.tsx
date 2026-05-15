@@ -101,9 +101,16 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
   }, [session]);
 
   const filteredNavItems = useMemo(() => {
-    const role = (session?.user as any)?.role;
+    const user = session?.user as any;
+    const role = user?.role;
     if (role === "subadmin") {
-      return navItems.filter(item => ["overview", "results", "records", "commission"].includes(item.id));
+      return navItems.filter(item => {
+        if (item.id === "overview") return user.show_overview !== false;
+        if (item.id === "commission") return user.show_commission !== false;
+        if (item.id === "results") return user.show_result !== false;
+        if (item.id === "records" || item.id === "bids") return user.show_bid_data !== false;
+        return false; // Hide others for subadmin
+      });
     }
     return navItems;
   }, [session]);
@@ -285,7 +292,20 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
           )}
           {section === "users" && <UsersModule users={users} onCreate={() => setModal({ kind: "user", mode: "create" })} onEdit={(item) => setModal({ kind: "user", mode: "edit", item })} onDelete={(id) => remove("app_users", id, "user")} />}
           {section === "markets" && <MarketsModule items={filteredMarkets} onCreate={() => setModal({ kind: "market", mode: "create" })} onEdit={(item) => setModal({ kind: "market", mode: "edit", item })} onDelete={(id) => remove("markets", id, "market")} />}
-          {section === "results" && <ResultsModule items={filteredResults} marketById={marketById} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} onCreate={() => setModal({ kind: "result", mode: "create" })} onEdit={(item) => setModal({ kind: "result", mode: "edit", item })} onDelete={(id) => remove("results", id, "result")} />}
+          {section === "results" && (
+            <ResultsModule 
+              items={filteredResults} 
+              marketById={marketById} 
+              filters={filters} 
+              updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} 
+              onCreate={() => setModal({ kind: "result", mode: "create" })} 
+              onEdit={(item) => setModal({ kind: "result", mode: "edit", item })} 
+              onDelete={(id) => remove("results", id, "result")} 
+              canAdd={(session?.user as any)?.can_add_result !== false}
+              canUpdate={(session?.user as any)?.can_update_result !== false}
+              canDelete={(session?.user as any)?.can_delete_result !== false}
+            />
+          )}
           {section === "wins" && <WinsModule items={wins} />}
           {section === "records" && <RecordsModule items={filteredRecords} markets={markets} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "commission" && (

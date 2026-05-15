@@ -66,12 +66,12 @@ export function DataTable({ headers, children }: { headers: string[]; children: 
   );
 }
 
-export function RowActions({ onEdit, onBalance, onDelete }: { onEdit: () => void; onBalance?: () => void; onDelete: () => void }) {
+export function RowActions({ onEdit, onBalance, onDelete }: { onEdit?: () => void; onBalance?: () => void; onDelete?: () => void }) {
   return (
     <div className="row-actions">
-      <button className="icon-button" onClick={onEdit} aria-label="Edit"><Pencil /></button>
+      {onEdit && <button className="icon-button" onClick={onEdit} aria-label="Edit"><Pencil /></button>}
       {onBalance && <button className="icon-button" onClick={onBalance} aria-label="Balance"><Wallet /></button>}
-      <button className="icon-button danger-action" onClick={onDelete} aria-label="Delete"><Trash2 /></button>
+      {onDelete && <button className="icon-button danger-action" onClick={onDelete} aria-label="Delete"><Trash2 /></button>}
     </div>
   );
 }
