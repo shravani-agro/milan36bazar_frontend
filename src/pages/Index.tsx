@@ -105,7 +105,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
     const role = user?.role;
     if (role === "subadmin") {
       return navItems.filter(item => {
-        if (item.id === "overview") return user.show_overview !== false;
+        if (item.id === "overview") return true; // Overview always shown
         if (item.id === "commission") return user.show_commission !== false;
         if (item.id === "results") return user.show_result !== false;
         if (item.id === "records" || item.id === "bids") return user.show_bid_data !== false;
@@ -118,14 +118,17 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
   useEffect(() => {
     if (session) {
       const role = (session.user as any)?.role;
-      if (role === "subadmin" && (section === "dashboard" || section === "results")) {
-        setSection("overview");
+      if (role === "subadmin") {
+        const allowedIds = filteredNavItems.map(i => i.id as string);
+        if (!allowedIds.includes(section)) {
+          setSection("overview");
+        }
       }
       void loadAll();
       const interval = window.setInterval(() => void loadAll(false), 15000);
       return () => window.clearInterval(interval);
     }
-  }, [session, isAdmin]);
+  }, [session, filteredNavItems, section]);
 
   const userById = useMemo(() => new Map(users.map((user) => [user.id, user])), [users]);
   const marketById = useMemo(() => new Map(markets.map((market) => [market.id, market])), [markets]);

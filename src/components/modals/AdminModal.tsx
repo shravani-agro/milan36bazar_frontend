@@ -80,7 +80,6 @@ export function AdminModal({ modal, users, markets, onClose, onSaved }: { modal:
                   can_update_result: form.get("can_update_result_hidden") === "true",
                   can_delete_result: form.get("can_delete_result_hidden") === "true",
                   show_commission: form.get("show_commission_hidden") === "true",
-                  show_overview: form.get("show_overview_hidden") === "true",
                   show_bid_data: form.get("show_bid_data_hidden") === "true",
                   show_result: form.get("show_result_hidden") === "true",
                 },

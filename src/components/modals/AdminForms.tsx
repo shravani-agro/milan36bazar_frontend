@@ -118,7 +118,6 @@ export function PermissionSelect({ item }: { item?: any }) {
     can_update_result: item?.can_update_result ?? true,
     can_delete_result: item?.can_delete_result ?? true,
     show_commission: item?.show_commission ?? true,
-    show_overview: item?.show_overview ?? true,
     show_bid_data: item?.show_bid_data ?? true,
     show_result: item?.show_result ?? true,
   });
@@ -132,7 +131,6 @@ export function PermissionSelect({ item }: { item?: any }) {
     can_update_result: "Update Result",
     can_delete_result: "Delete Result",
     show_commission: "Show Commission",
-    show_overview: "Show Overview",
     show_bid_data: "Show Bid Data",
     show_result: "Show Results Section",
   };
