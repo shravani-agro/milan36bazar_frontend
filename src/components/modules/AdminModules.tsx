@@ -97,14 +97,21 @@ export function UsersModule({ users, onCreate, onEdit, onDelete }: { users: AppU
   
   return (
     <Panel title={isReadOnly ? "My Users" : "Users"} action={onCreate && <button className="btn-primary" onClick={onCreate}><UserPlus className="h-4 w-4" /> Create User</button>}>
-      <DataTable headers={["ID", "Name", "Phone", "Password", "Commission%", !isReadOnly ? "Action" : ""]}>
+      <DataTable headers={[
+        "ID", 
+        "Name", 
+        "Phone", 
+        !isReadOnly ? "Password" : "", 
+        !isReadOnly ? "Commission%" : "", 
+        !isReadOnly ? "Action" : ""
+      ].filter(Boolean)}>
         {users.map((user, idx) => (
           <tr key={user.id}>
             <td>{idx + 1}</td>
             <td className={`font-medium text-primary ${onEdit ? "cursor-pointer" : ""}`} onClick={onEdit ? () => onEdit(user) : undefined}>{user.name}</td>
             <td className="text-primary">{user.phone}</td>
-            <td>{user.password || "—"}</td>
-            <td>{user.commission || 0}%</td>
+            {!isReadOnly && <td>{user.password || "—"}</td>}
+            {!isReadOnly && <td>{user.commission || 0}%</td>}
             {!isReadOnly && (
               <td>
                 <div className="flex flex-wrap gap-1">
