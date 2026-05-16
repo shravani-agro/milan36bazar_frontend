@@ -105,12 +105,13 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
     const role = user?.role;
     if (role === "subadmin") {
       return navItems.filter(item => {
-        if (item.id === "overview") return true; // Overview always shown
+        if (item.id === "overview") return true; 
+        if (item.id === "users") return true; // My Users
         if (item.id === "commission") return user.show_commission !== false;
         if (item.id === "results") return user.show_result !== false;
         if (item.id === "records") return user.show_bid_data !== false;
-        return false; // Hide others for subadmin (including 'bids')
-      });
+        return false; 
+      }).map(item => item.id === "users" ? { ...item, label: "My Users" } : item);
     }
     return navItems;
   }, [session]);
@@ -130,7 +131,42 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
     }
   }, [session, filteredNavItems, section]);
 
-  const userById = useMemo(() => new Map(users.map((user) => [user.id, user])), [users]);
+  const userRole = (session?.user as any)?.role;
+  const isSubAdmin = userRole === "subadmin";
+
+  const assignedUserIds = useMemo(() => {
+    if (!isSubAdmin) return null;
+    return (session?.user as any)?.assigned_user_ids 
+      ? (session.user as any).assigned_user_ids.split(",").filter(Boolean).map(String) 
+      : [];
+  }, [session, isSubAdmin]);
+
+  const displayUsers = useMemo(() => {
+    if (!assignedUserIds) return users;
+    return users.filter(u => assignedUserIds.includes(String(u.id)));
+  }, [users, assignedUserIds]);
+
+  const displayBids = useMemo(() => {
+    if (!assignedUserIds) return bids;
+    return bids.filter(b => assignedUserIds.includes(String(b.app_user_id)));
+  }, [bids, assignedUserIds]);
+
+  const displayWins = useMemo(() => {
+    if (!assignedUserIds) return wins;
+    return wins.filter(w => assignedUserIds.includes(String(w.app_user_id)));
+  }, [wins, assignedUserIds]);
+
+  const displayDetailedBids = useMemo(() => {
+    if (!assignedUserIds) return detailedBids;
+    return detailedBids.filter(b => assignedUserIds.includes(String(b.app_user_id)));
+  }, [detailedBids, assignedUserIds]);
+
+  const displayTransactions = useMemo(() => {
+    if (!assignedUserIds) return transactions;
+    return transactions.filter(t => assignedUserIds.includes(String(t.app_user_id)));
+  }, [transactions, assignedUserIds]);
+
+  const userById = useMemo(() => new Map(displayUsers.map((user) => [user.id, user])), [displayUsers]);
   const marketById = useMemo(() => new Map(markets.map((market) => [market.id, market])), [markets]);
 
   const filteredMarkets = useMemo(() => markets.filter((market) => filters.status === "all"), [markets, filters.status]);
@@ -141,7 +177,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
   ), [results, filters.date, filters.marketId]);
 
   const filteredRecords = useMemo(() => {
-    const dailyBids = bids.filter((bid) => 
+    const dailyBids = displayBids.filter((bid) => 
       (!filters.date || bid.bid_date === filters.date) && 
       (filters.marketId === "all" || String(bid.market_id) === String(filters.marketId))
     );
@@ -212,20 +248,20 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
   }, [bids, filters.date, filters.marketId, marketById]);
 
   const analytics = useMemo(() => {
-    const dailyBids = bids.filter((bid) => 
+    const dailyBids = displayBids.filter((bid) => 
       (!filters.date || bid.bid_date === filters.date) && 
       (filters.marketId === "all" || String(bid.market_id) === String(filters.marketId))
     );
     const totalBidAmount = dailyBids.reduce((sum, bid) => sum + numberOrZero(bid.amount), 0);
-    const totalWithdraw = users.reduce((sum, user) => sum, 0);
-    const totalDeposit = transactions.filter((trx) => ["add", "deposit"].includes(trx.transaction_type)).reduce((sum, trx) => sum + numberOrZero(trx.amount), 0);
+    const totalWithdraw = 0; // Simplified for now
+    const totalDeposit = displayTransactions.filter((trx) => ["add", "deposit"].includes(trx.transaction_type)).reduce((sum, trx) => sum + numberOrZero(trx.amount), 0);
     const totalCommission = Math.round(totalBidAmount * 0.05);
     const digits = Array.from({ length: 10 }, (_, digit) => dailyBids.filter((bid) => bid.bid_type === "single_digit" && bid.number_played === String(digit)).length);
     const digitAmounts = Array.from({ length: 10 }, (_, digit) => dailyBids.filter((bid) => bid.bid_type === "single_digit" && bid.number_played === String(digit)).reduce((sum, bid) => sum + numberOrZero(bid.amount), 0));
     const typeCounts = Object.keys(bidTypeLabels).map((type) => ({ label: bidTypeLabels[type as Bid["bid_type"]], count: dailyBids.filter((bid) => bid.bid_type === type).length }));
     const marketStats = markets.map((market) => ({ name: market.market_name, bids: dailyBids.filter((bid) => bid.market_id === market.id).length, amount: dailyBids.filter((bid) => bid.market_id === market.id).reduce((sum, bid) => sum + numberOrZero(bid.amount), 0) })).sort((a, b) => b.amount - a.amount);
     return { totalBidAmount, totalWithdraw, totalDeposit, totalCommission, digits, digitAmounts, typeCounts, marketStats };
-  }, [bids, markets, transactions, users, filters.date, filters.marketId]);
+  }, [displayBids, markets, displayTransactions, displayUsers, filters.date, filters.marketId]);
 
   async function loadAll(showSpinner = true) {
     if (showSpinner) setLoading(true);
@@ -281,19 +317,26 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
         />
 
         <div className="p-4 lg:p-6">
-          {section === "dashboard" && <Dashboard users={users} bids={bids} wins={wins} markets={markets} analytics={analytics} setSection={setSection} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
+          {section === "dashboard" && <Dashboard users={displayUsers} bids={displayBids} wins={displayWins} markets={markets} analytics={analytics} setSection={setSection} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "overview" && (
             <SubAdminOverviewModule 
-              users={users} 
-              bids={bids} 
-              wins={wins} 
+              users={displayUsers} 
+              bids={displayBids} 
+              wins={displayWins} 
               markets={markets}
               filters={filters} 
               updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} 
-              assignedUserIds={(session?.user as any)?.assigned_user_ids ? (session.user as any).assigned_user_ids.split(",").filter(Boolean) : undefined}
+              assignedUserIds={assignedUserIds || undefined}
             />
           )}
-          {section === "users" && <UsersModule users={users} onCreate={() => setModal({ kind: "user", mode: "create" })} onEdit={(item) => setModal({ kind: "user", mode: "edit", item })} onDelete={(id) => remove("app_users", id, "user")} />}
+          {section === "users" && (
+            <UsersModule 
+              users={displayUsers} 
+              onCreate={!isSubAdmin ? () => setModal({ kind: "user", mode: "create" }) : undefined} 
+              onEdit={!isSubAdmin ? (item) => setModal({ kind: "user", mode: "edit", item }) : undefined} 
+              onDelete={!isSubAdmin ? (id) => remove("app_users", id, "user") : undefined} 
+            />
+          )}
           {section === "markets" && <MarketsModule items={filteredMarkets} onCreate={() => setModal({ kind: "market", mode: "create" })} onEdit={(item) => setModal({ kind: "market", mode: "edit", item })} onDelete={(id) => remove("markets", id, "market")} />}
           {section === "results" && (
             <ResultsModule 
@@ -309,21 +352,20 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
               canDelete={(session?.user as any)?.can_delete_result !== false}
             />
           )}
-          {section === "wins" && <WinsModule items={wins} />}
+          {section === "wins" && <WinsModule items={displayWins} />}
           {section === "records" && <RecordsModule items={filteredRecords} markets={markets} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "commission" && (
             <CommissionModule 
-              users={users} 
-              bids={bids} 
-              wins={wins} 
+              users={displayUsers} 
+              bids={displayBids} 
+              wins={displayWins} 
               filters={filters} 
               updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} 
-              assignedUserIds={(session?.user as any)?.assigned_user_ids ? (session.user as any).assigned_user_ids.split(",").filter(Boolean) : undefined}
+              assignedUserIds={assignedUserIds || undefined}
             />
           )}
-          {section === "bids" && <BidsModule items={detailedBids} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
+          {section === "bids" && <BidsModule items={displayDetailedBids} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "subadmins" && <SubAdminsModule items={subAdmins} onCreate={() => setModal({ kind: "sub_admin", mode: "create" })} onEdit={(item) => setModal({ kind: "sub_admin", mode: "edit", item })} onDelete={(id) => remove("sub_admins", id, "sub admin")} />}
-
         </div>
       </section>
 

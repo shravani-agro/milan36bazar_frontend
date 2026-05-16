@@ -92,23 +92,27 @@ export function Dashboard({
   );
 }
 
-export function UsersModule({ users, onCreate, onEdit, onDelete }: { users: AppUser[]; onCreate: () => void; onEdit: (item: AppUser) => void; onDelete: (id: string) => void }) {
+export function UsersModule({ users, onCreate, onEdit, onDelete }: { users: AppUser[]; onCreate?: () => void; onEdit?: (item: AppUser) => void; onDelete?: (id: string) => void }) {
+  const isReadOnly = !onCreate && !onEdit && !onDelete;
+  
   return (
-    <Panel title="Users" action={<button className="btn-primary" onClick={onCreate}><UserPlus className="h-4 w-4" /> Create User</button>}>
-      <DataTable headers={["ID", "Name", "Phone", "Password", "Commission%", "Action"]}>
+    <Panel title={isReadOnly ? "My Users" : "Users"} action={onCreate && <button className="btn-primary" onClick={onCreate}><UserPlus className="h-4 w-4" /> Create User</button>}>
+      <DataTable headers={["ID", "Name", "Phone", "Password", "Commission%", !isReadOnly ? "Action" : ""]}>
         {users.map((user, idx) => (
           <tr key={user.id}>
             <td>{idx + 1}</td>
-            <td className="font-medium text-primary cursor-pointer" onClick={() => onEdit(user)}>{user.name}</td>
+            <td className={`font-medium text-primary ${onEdit ? "cursor-pointer" : ""}`} onClick={onEdit ? () => onEdit(user) : undefined}>{user.name}</td>
             <td className="text-primary">{user.phone}</td>
             <td>{user.password || "—"}</td>
             <td>{user.commission || 0}%</td>
-            <td>
-              <div className="flex flex-wrap gap-1">
-                <button className="btn-compact border border-primary text-primary" onClick={() => onEdit(user)}>Edit</button>
-                <button className="btn-compact border border-red-500 text-red-500" onClick={() => onDelete(user.id)}>Delete</button>
-              </div>
-            </td>
+            {!isReadOnly && (
+              <td>
+                <div className="flex flex-wrap gap-1">
+                  {onEdit && <button className="btn-compact border border-primary text-primary" onClick={() => onEdit(user)}>Edit</button>}
+                  {onDelete && <button className="btn-compact border border-red-500 text-red-500" onClick={() => onDelete(user.id)}>Delete</button>}
+                </div>
+              </td>
+            )}
           </tr>
         ))}
       </DataTable>
