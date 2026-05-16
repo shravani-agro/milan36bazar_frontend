@@ -290,7 +290,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
               markets={markets}
               filters={filters} 
               updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} 
-              assignedUserIds={(session?.user as any)?.assigned_user_ids ? (session.user as any).assigned_user_ids.split(",") : undefined}
+              assignedUserIds={(session?.user as any)?.assigned_user_ids ? (session.user as any).assigned_user_ids.split(",").filter(Boolean) : undefined}
             />
           )}
           {section === "users" && <UsersModule users={users} onCreate={() => setModal({ kind: "user", mode: "create" })} onEdit={(item) => setModal({ kind: "user", mode: "edit", item })} onDelete={(id) => remove("app_users", id, "user")} />}
@@ -318,7 +318,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
               wins={wins} 
               filters={filters} 
               updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} 
-              assignedUserIds={(session?.user as any)?.assigned_user_ids ? (session.user as any).assigned_user_ids.split(",") : undefined}
+              assignedUserIds={(session?.user as any)?.assigned_user_ids ? (session.user as any).assigned_user_ids.split(",").filter(Boolean) : undefined}
             />
           )}
           {section === "bids" && <BidsModule items={detailedBids} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}

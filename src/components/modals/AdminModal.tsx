@@ -90,7 +90,7 @@ export function AdminModal({ modal, users, markets, onClose, onSaved }: { modal:
               <>
                 <Field name="username" label="Username" defaultValue={modal.item?.username} required />
                 <Field name="password" label="Password" defaultValue={modal.item?.password} required />
-                <UserMultiSelect users={users} selectedIds={modal.item?.assigned_user_ids ? modal.item.assigned_user_ids.split(",") : []} />
+                <UserMultiSelect users={users} selectedIds={modal.item?.assigned_user_ids ? modal.item.assigned_user_ids.split(",").filter(Boolean) : []} />
                 <PermissionSelect item={modal.item} />
               </>
             }

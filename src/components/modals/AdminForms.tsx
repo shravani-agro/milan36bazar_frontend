@@ -8,11 +8,13 @@ const pannaList = ["000", "100", "110", "111", "112", "113", "114", "115", "116"
 
 
 export function UserMultiSelect({ users, selectedIds = [] }: { users: AppUser[]; selectedIds?: string[] }) {
-  const [selected, setSelected] = useState<string[]>(selectedIds);
+  // Ensure we start with unique string IDs
+  const initialSelected = Array.from(new Set(selectedIds.map(String).filter(Boolean)));
+  const [selected, setSelected] = useState<string[]>(initialSelected);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    setSelected(selectedIds);
+    setSelected(Array.from(new Set(selectedIds.map(String).filter(Boolean))));
   }, [selectedIds.join(",")]);
 
   const filteredUsers = users.filter(u => 
@@ -20,17 +22,18 @@ export function UserMultiSelect({ users, selectedIds = [] }: { users: AppUser[];
     u.phone.includes(search)
   );
 
-  const toggle = (id: string) => {
-    setSelected((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]);
+  const toggle = (id: string | number) => {
+    const sId = String(id);
+    setSelected((prev) => prev.includes(sId) ? prev.filter((i) => i !== sId) : [...prev, sId]);
   };
 
   const selectAll = () => {
-    const allFilteredIds = filteredUsers.map(u => u.id);
+    const allFilteredIds = filteredUsers.map(u => String(u.id));
     setSelected(prev => Array.from(new Set([...prev, ...allFilteredIds])));
   };
 
   const deselectAll = () => {
-    const filteredIds = new Set(filteredUsers.map(u => u.id));
+    const filteredIds = new Set(filteredUsers.map(u => String(u.id)));
     setSelected(prev => prev.filter(id => !filteredIds.has(id)));
   };
 
@@ -60,7 +63,7 @@ export function UserMultiSelect({ users, selectedIds = [] }: { users: AppUser[];
           <label key={user.id} className="flex items-center gap-2 p-2 hover:bg-muted/50 rounded cursor-pointer transition-colors border border-border/50 bg-background/50">
             <input 
               type="checkbox" 
-              checked={selected.includes(user.id)} 
+              checked={selected.includes(String(user.id))} 
               onChange={() => toggle(user.id)}
               className="w-4 h-4 accent-primary"
             />
