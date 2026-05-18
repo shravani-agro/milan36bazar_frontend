@@ -105,12 +105,12 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
     const role = user?.role;
     if (role === "subadmin") {
       return navItems.filter(item => {
-        if (item.id === "overview") return true; 
+        if (item.id === "overview") return true;
         if (item.id === "users") return true; // My Users
         if (item.id === "commission") return user.show_commission !== false;
         if (item.id === "results") return user.show_result !== false;
         if (item.id === "records") return user.show_bid_data !== false;
-        return false; 
+        return false;
       }).map(item => item.id === "users" ? { ...item, label: "My Users" } : item);
     }
     return navItems;
@@ -136,8 +136,8 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
 
   const assignedUserIds = useMemo(() => {
     if (!isSubAdmin) return null;
-    return (session?.user as any)?.assigned_user_ids 
-      ? (session.user as any).assigned_user_ids.split(",").filter(Boolean).map(String) 
+    return (session?.user as any)?.assigned_user_ids
+      ? (session.user as any).assigned_user_ids.split(",").filter(Boolean).map(String)
       : [];
   }, [session, isSubAdmin]);
 
@@ -171,19 +171,19 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
 
   const filteredMarkets = useMemo(() => markets.filter((market) => filters.status === "all"), [markets, filters.status]);
 
-  const filteredResults = useMemo(() => results.filter((item) => 
-    (!filters.date || item.result_date === filters.date) && 
+  const filteredResults = useMemo(() => results.filter((item) =>
+    (!filters.date || item.result_date === filters.date) &&
     (filters.marketId === "all" || String(item.market_id) === String(filters.marketId))
   ), [results, filters.date, filters.marketId]);
 
   const filteredRecords = useMemo(() => {
-    const dailyBids = displayBids.filter((bid) => 
-      (!filters.date || bid.bid_date === filters.date) && 
+    const dailyBids = displayBids.filter((bid) =>
+      (!filters.date || bid.bid_date === filters.date) &&
       (filters.marketId === "all" || String(bid.market_id) === String(filters.marketId))
     );
-    
+
     const grouped = new Map<string, MarketRecord>();
-    
+
     dailyBids.forEach(bid => {
       const key = `${bid.bid_date}-${bid.market_id}`;
       if (!grouped.has(key)) {
@@ -201,11 +201,11 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
           triple_pana: 0,
         });
       }
-      
+
       const rec = grouped.get(key)!;
       rec.total_bids += 1;
       rec.total_bid_amount += numberOrZero(bid.amount);
-      
+
       if (bid.bid_type === "single_digit") {
         const digitKey = `single_digit_${bid.number_played}` as keyof MarketRecord;
         if (digitKey in rec) {
@@ -235,7 +235,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
           // Store numeric sum for totals calculation
           const sum = Array.from(m.values()).reduce((a, b) => a + b, 0);
           (rec as any)[type] = sum;
-          
+
           // Store display string for the table cell
           (rec as any)[`${type}_display`] = Array.from(m.entries())
             .map(([num, amt]) => `${num} = ${amt}`)
@@ -243,13 +243,13 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
         }
       });
     });
-    
+
     return Array.from(grouped.values());
   }, [bids, filters.date, filters.marketId, marketById]);
 
   const analytics = useMemo(() => {
-    const dailyBids = displayBids.filter((bid) => 
-      (!filters.date || bid.bid_date === filters.date) && 
+    const dailyBids = displayBids.filter((bid) =>
+      (!filters.date || bid.bid_date === filters.date) &&
       (filters.marketId === "all" || String(bid.market_id) === String(filters.marketId))
     );
     const totalBidAmount = dailyBids.reduce((sum, bid) => sum + numberOrZero(bid.amount), 0);
@@ -272,7 +272,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
       setRecords(data.market_bid_records || []); setTransactions(data.balance_transactions || []);
       setWithdrawDetails(data.withdraw_details || []); setSubAdmins(data.sub_admins || []);
     }
-    
+
     const { data: bidData } = await mockApi.db.getAllBids();
     if (bidData) setDetailedBids(bidData);
 
@@ -319,34 +319,34 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
         <div className="p-4 lg:p-6">
           {section === "dashboard" && <Dashboard users={displayUsers} bids={displayBids} wins={displayWins} markets={markets} analytics={analytics} setSection={setSection} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "overview" && (
-            <SubAdminOverviewModule 
-              users={displayUsers} 
-              bids={displayBids} 
-              wins={displayWins} 
+            <SubAdminOverviewModule
+              users={displayUsers}
+              bids={displayBids}
+              wins={displayWins}
               markets={markets}
-              filters={filters} 
-              updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} 
+              filters={filters}
+              updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))}
               assignedUserIds={assignedUserIds || undefined}
             />
           )}
           {section === "users" && (
-            <UsersModule 
-              users={displayUsers} 
-              onCreate={!isSubAdmin ? () => setModal({ kind: "user", mode: "create" }) : undefined} 
-              onEdit={!isSubAdmin ? (item) => setModal({ kind: "user", mode: "edit", item }) : undefined} 
-              onDelete={!isSubAdmin ? (id) => remove("app_users", id, "user") : undefined} 
+            <UsersModule
+              users={displayUsers}
+              onCreate={!isSubAdmin ? () => setModal({ kind: "user", mode: "create" }) : undefined}
+              onEdit={!isSubAdmin ? (item) => setModal({ kind: "user", mode: "edit", item }) : undefined}
+              onDelete={!isSubAdmin ? (id) => remove("app_users", id, "user") : undefined}
             />
           )}
           {section === "markets" && <MarketsModule items={filteredMarkets} onCreate={() => setModal({ kind: "market", mode: "create" })} onEdit={(item) => setModal({ kind: "market", mode: "edit", item })} onDelete={(id) => remove("markets", id, "market")} />}
           {section === "results" && (
-            <ResultsModule 
-              items={filteredResults} 
-              marketById={marketById} 
-              filters={filters} 
-              updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} 
-              onCreate={() => setModal({ kind: "result", mode: "create" })} 
-              onEdit={(item) => setModal({ kind: "result", mode: "edit", item })} 
-              onDelete={(id) => remove("results", id, "result")} 
+            <ResultsModule
+              items={filteredResults}
+              marketById={marketById}
+              filters={filters}
+              updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))}
+              onCreate={() => setModal({ kind: "result", mode: "create" })}
+              onEdit={(item) => setModal({ kind: "result", mode: "edit", item })}
+              onDelete={(id) => remove("results", id, "result")}
               canAdd={(session?.user as any)?.can_add_result !== false}
               canUpdate={(session?.user as any)?.can_update_result !== false}
               canDelete={(session?.user as any)?.can_delete_result !== false}
@@ -355,12 +355,12 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
           {section === "wins" && <WinsModule items={displayWins} />}
           {section === "records" && <RecordsModule items={filteredRecords} markets={markets} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "commission" && (
-            <CommissionModule 
-              users={displayUsers} 
-              bids={displayBids} 
-              wins={displayWins} 
-              filters={filters} 
-              updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} 
+            <CommissionModule
+              users={displayUsers}
+              bids={displayBids}
+              wins={displayWins}
+              filters={filters}
+              updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))}
               assignedUserIds={assignedUserIds || undefined}
             />
           )}
@@ -389,19 +389,19 @@ function AuthScreen({ isSubAdminPortal }: { isSubAdminPortal: boolean }) {
             <Lock className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold">{isSubAdminPortal ? "milan36bazar Sub-Admin" : "milan36bazar Admin"}</h1>
+            <h1 className="text-2xl font-semibold">{isSubAdminPortal ? "Milan 36 Bazar Sub-Admin" : "Milan 36 Bazar Admin"}</h1>
             <p className="text-sm text-muted-foreground">{isSubAdminPortal ? "Sub-admin access portal" : "Secure gaming operations console"}</p>
           </div>
         </div>
         <form onSubmit={submit} className="space-y-4"><label className="field-label">Username<input className="field-input" type="text" value={email} onChange={(e) => setEmail(e.target.value)} required /></label><label className="field-label">Password<input className="field-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></label><button className="btn-primary w-full" disabled={busy}>{busy ? "Please wait…" : "Login"}</button></form>
-        
+
         <div className="mt-8 pt-6 border-t border-border/50 text-center">
-          <a 
-            href="/apk" 
+          <a
+            href="/apk"
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-medium"
           >
             <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            Download milan36bazar App
+            Download Milan 36 Bazar App
           </a>
         </div>
       </section>
