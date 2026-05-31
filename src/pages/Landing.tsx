@@ -157,19 +157,48 @@ export default function Landing() {
 
       let displayResult = "***-**";
       if (latestResult) {
-        const openPana = latestResult.open_pana ? String(latestResult.open_pana).trim() : "";
-        const openDigit = latestResult.open_digit !== undefined && latestResult.open_digit !== null ? String(latestResult.open_digit).trim() : "";
-        const closeDigit = latestResult.close_digit !== undefined && latestResult.close_digit !== null ? String(latestResult.close_digit).trim() : "";
-        const closePana = latestResult.close_pana ? String(latestResult.close_pana).trim() : "";
+        let timePassed = true;
+        if (m.open_time) {
+          const timeStr = String(m.open_time).trim().toUpperCase();
+          let openHour = 0;
+          let openMin = 0;
+          
+          const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)?/);
+          if (match) {
+             openHour = parseInt(match[1], 10);
+             openMin = parseInt(match[2], 10);
+             if (match[3] === 'PM' && openHour < 12) openHour += 12;
+             if (match[3] === 'AM' && openHour === 12) openHour = 0;
+             
+             // Use the precisely ticking currentTime
+             const istTimeStr = currentTime.toLocaleString("en-US", { timeZone: "Asia/Kolkata", hour12: false, hour: '2-digit', minute: '2-digit' });
+             const currentHourParts = istTimeStr.split(':');
+             const currentHour = parseInt(currentHourParts[0], 10) % 24;
+             const currentMinute = parseInt(currentHourParts[1], 10);
 
-        const hasOpen = openPana && openDigit && openPana !== "???" && openDigit !== "?";
-        const hasClose = closeDigit && closePana && closeDigit !== "?" && closePana !== "???";
+             if (currentHour < openHour) {
+               timePassed = false;
+             } else if (currentHour === openHour && currentMinute < openMin) {
+               timePassed = false;
+             }
+          }
+        }
 
-        if (hasOpen && hasClose) {
-          displayResult = `${openPana}-${openDigit}${closeDigit}-${closePana}`;
-        } else if (hasOpen) {
-          // If only open is declared, show strictly in XXX-X format (e.g., 346-3)
-          displayResult = `${openPana}-${openDigit}`;
+        if (timePassed) {
+          const openPana = latestResult.open_pana ? String(latestResult.open_pana).trim() : "";
+          const openDigit = latestResult.open_digit !== undefined && latestResult.open_digit !== null ? String(latestResult.open_digit).trim() : "";
+          const closeDigit = latestResult.close_digit !== undefined && latestResult.close_digit !== null ? String(latestResult.close_digit).trim() : "";
+          const closePana = latestResult.close_pana ? String(latestResult.close_pana).trim() : "";
+
+          const hasOpen = openPana && openDigit && openPana !== "???" && openDigit !== "?";
+          const hasClose = closeDigit && closePana && closeDigit !== "?" && closePana !== "???";
+
+          if (hasOpen && hasClose) {
+            displayResult = `${openPana}-${openDigit}${closeDigit}-${closePana}`;
+          } else if (hasOpen) {
+            // If only open is declared, show strictly in XXX-X format (e.g., 346-3)
+            displayResult = `${openPana}-${openDigit}`;
+          }
         }
       }
 
