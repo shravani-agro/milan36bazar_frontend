@@ -369,7 +369,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
         </div>
       </section>
 
-      {modal && <AdminModal modal={modal} users={users} markets={markets} onClose={() => setModal(null)} onSaved={() => { setModal(null); void loadAll(false); }} />}
+      {modal && <AdminModal modal={modal} users={users} markets={markets} results={results} onClose={() => setModal(null)} onSaved={() => { setModal(null); void loadAll(false); }} />}
     </main>
   );
 }

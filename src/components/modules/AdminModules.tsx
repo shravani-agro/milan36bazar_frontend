@@ -94,15 +94,15 @@ export function Dashboard({
 
 export function UsersModule({ users, onCreate, onEdit, onDelete }: { users: AppUser[]; onCreate?: () => void; onEdit?: (item: AppUser) => void; onDelete?: (id: string) => void }) {
   const isReadOnly = !onCreate && !onEdit && !onDelete;
-  
+
   return (
     <Panel title={isReadOnly ? "My Users" : "Users"} action={onCreate && <button className="btn-primary" onClick={onCreate}><UserPlus className="h-4 w-4" /> Create User</button>}>
       <DataTable headers={[
-        "ID", 
-        "Name", 
-        "Phone", 
-        !isReadOnly ? "Password" : "", 
-        !isReadOnly ? "Commission%" : "", 
+        "ID",
+        "Name",
+        "Phone",
+        !isReadOnly ? "Password" : "",
+        !isReadOnly ? "Commission%" : "",
         !isReadOnly ? "Action" : ""
       ].filter(Boolean)}>
         {users.map((user, idx) => (
@@ -180,8 +180,8 @@ export function ResultsModule({
   canDelete?: boolean;
 }) {
   return (
-    <Panel 
-      title="Results" 
+    <Panel
+      title="Results"
       action={canAdd && <button className="btn-primary" onClick={onCreate}><Plus className="h-4 w-4" /> Create Result</button>}
     >
       <div className="mb-6 flex items-end gap-4">
@@ -207,9 +207,9 @@ export function ResultsModule({
               <td>{formatDateTime(item.created_at)}</td>
               <td>
                 {(canUpdate || canDelete) && (
-                  <RowActions 
-                    onEdit={canUpdate ? () => onEdit(item) : undefined} 
-                    onDelete={canDelete ? () => onDelete(item.id) : undefined} 
+                  <RowActions
+                    onEdit={canUpdate ? () => onEdit(item) : undefined}
+                    onDelete={canDelete ? () => onDelete(item.id) : undefined}
                   />
                 )}
               </td>
@@ -692,14 +692,14 @@ export function SubAdminOverviewModule({
     }
 
     return filteredUsers.map(user => {
-      const dailyBids = bids.filter(b => 
-        b.app_user_id === user.id && 
+      const dailyBids = bids.filter(b =>
+        b.app_user_id === user.id &&
         b.bid_date === selectedDate &&
         (selectedMarketId === "all" || String(b.market_id) === String(selectedMarketId))
       );
-      
-      const dailyWins = wins.filter(w => 
-        w.app_user_id === user.id && 
+
+      const dailyWins = wins.filter(w =>
+        w.app_user_id === user.id &&
         w.created_at.startsWith(selectedDate) &&
         (selectedMarketId === "all" || String(w.market_id) === String(selectedMarketId))
       );
@@ -749,9 +749,9 @@ export function SubAdminOverviewModule({
       <div className="grid gap-6">
         {userStats.length > 0 ? (
           userStats.map((user) => (
-            <Panel 
-              key={user.id} 
-              title={user.name} 
+            <Panel
+              key={user.id}
+              title={user.name}
               action={
                 <div className="flex gap-4 text-sm font-medium">
                   <span className="text-primary">Bid: {money.format(user.totalBid)}</span>

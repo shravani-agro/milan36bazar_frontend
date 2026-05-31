@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect, ReactNode, useMemo } from "react";
 import { AppUser, Market, ResultRecord } from "@/lib/mockApi";
 import { Field, getToday } from "../ui/AdminUI";
 import { ChevronDown, Search } from "lucide-react";
@@ -212,7 +212,8 @@ export function MarketSelect({ markets, defaultValue }: { markets: Market[]; def
   );
 }
 
-export function ResultFormFields({ markets, item }: { markets: Market[]; item?: ResultRecord }) {
+export function ResultFormFields({ markets, item, results = [], mode }: { markets: Market[]; item?: ResultRecord; results?: ResultRecord[]; mode?: string }) {
+  const [date, setDate] = useState(item?.result_date ?? getToday());
   const [pana, setPana] = useState(item?.open_pana || "100");
   const calculateDigit = (p: string) => {
     const sum = p.split("").reduce((acc, digit) => acc + Number(digit), 0);
@@ -225,10 +226,27 @@ export function ResultFormFields({ markets, item }: { markets: Market[]; item?: 
     setDigit(calculateDigit(newPana));
   };
 
+  const availableMarkets = useMemo(() => {
+    if (mode === "edit") return markets; // Allow keeping the same market in edit mode
+    const declaredMarketIds = new Set(results.filter(r => r.result_date === date).map(r => String(r.market_id)));
+    return markets.filter(m => !declaredMarketIds.has(String(m.id)));
+  }, [markets, results, date, mode]);
+
   return (
     <>
-      <MarketSelect markets={markets} defaultValue={item?.market_id} />
-      <Field name="result_date" label="Date" type="date" defaultValue={item?.result_date ?? getToday()} required />
+      <label className="field-label">
+        Date
+        <input 
+          className="field-input w-full" 
+          name="result_date" 
+          type="date" 
+          value={date} 
+          onChange={(e) => setDate(e.target.value)}
+          required 
+        />
+      </label>
+      
+      <MarketSelect markets={availableMarkets} defaultValue={item?.market_id} />
       
       <SearchableSelect 
         label="Open Pana"
