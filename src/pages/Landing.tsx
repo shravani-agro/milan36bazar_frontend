@@ -149,11 +149,13 @@ export default function Landing() {
   // Process and merge database markets
   const processedMarkets = useMemo(() => {
     return dbMarkets.map((m) => {
-      // Find results for this market from the DB results
-      const marketResults = dbResults.filter((r) => String(r.market_id) === String(m.id));
+      // Get today's date in IST (YYYY-MM-DD)
+      const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
+      // Find results for this market from the DB results for TODAY
+      const marketResults = dbResults.filter((r) => String(r.market_id) === String(m.id) && r.result_date === todayStr);
       const latestResult = marketResults[marketResults.length - 1];
 
-      let displayResult = m.result || "--- - -- - ---";
+      let displayResult = "***-**";
       if (latestResult) {
         const openPana = latestResult.open_pana ? String(latestResult.open_pana).trim() : "";
         const openDigit = latestResult.open_digit !== undefined && latestResult.open_digit !== null ? String(latestResult.open_digit).trim() : "";
@@ -168,8 +170,6 @@ export default function Landing() {
         } else if (hasOpen) {
           // If only open is declared, show strictly in XXX-X format (e.g., 346-3)
           displayResult = `${openPana}-${openDigit}`;
-        } else {
-          displayResult = "--- - -- - ---";
         }
       }
 
