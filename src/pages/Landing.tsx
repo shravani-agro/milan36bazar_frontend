@@ -211,11 +211,16 @@ export default function Landing() {
 
       // Guess time zone details or standard labels
       let type = m.type || "Special";
-      if (!m.type) {
-        const hour = parseInt(m.open_time.split(":")[0]) || 12;
-        const isPM = m.open_time.includes("PM");
-        if (isPM && hour >= 8) type = "Night";
-        else if (isPM && hour >= 1 && hour < 8) type = "Day";
+      if (!m.type && m.open_time) {
+        let hour = parseInt(m.open_time.split(":")[0]) || 12;
+        const isPM = m.open_time.toUpperCase().includes("PM");
+        const isAM = m.open_time.toUpperCase().includes("AM");
+        
+        if (isPM && hour < 12) hour += 12;
+        if (isAM && hour === 12) hour = 0;
+
+        if (hour >= 18 || (hour >= 0 && hour < 6)) type = "Night";
+        else if (hour >= 12 && hour < 18) type = "Day";
         else type = "Morning";
       }
 
