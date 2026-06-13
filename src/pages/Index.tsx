@@ -18,19 +18,20 @@ import {
   Users,
   X,
   ListFilter,
+  ClipboardList
 } from "lucide-react";
 import { toast } from "sonner";
 import { realApi as mockApi } from "../lib/api";
-import type { AppUser, Market, WithdrawDetail, ResultRecord, Bid, WinHistory, BalanceTransaction, MarketRecord, Session } from "@/lib/mockApi";
+import type { AppUser, Market, WithdrawDetail, ResultRecord, Bid, WinHistory, BalanceTransaction, MarketRecord, ActivityLog, Session } from "@/lib/mockApi";
 
 import { money, formatDate, getToday } from "@/components/ui/AdminUI";
 import { AdminModal, ModalState } from "@/components/modals/AdminModal";
-import { Dashboard, UsersModule, MarketsModule, ResultsModule, WinsModule, RecordsModule, CommissionModule, BidsModule, SubAdminsModule, SubAdminOverviewModule } from "@/components/modules/AdminModules";
+import { Dashboard, UsersModule, MarketsModule, ResultsModule, WinsModule, RecordsModule, CommissionModule, BidsModule, SubAdminsModule, SubAdminOverviewModule, ActivityLogModule } from "@/components/modules/AdminModules";
 import { CircleDollarSign } from "lucide-react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 
-type Section = "dashboard" | "users" | "markets" | "results" | "wins" | "records" | "commission" | "bids" | "subadmins" | "overview";
+type Section = "dashboard" | "users" | "markets" | "results" | "wins" | "records" | "commission" | "bids" | "subadmins" | "activity" | "overview";
 
 type Filters = {
   status: string;
@@ -50,6 +51,7 @@ const navItems: Array<{ id: Section; label: string; icon: any }> = [
   { id: "results", label: "Results", icon: Trophy },
   { id: "wins", label: "Win History", icon: History },
   { id: "records", label: "Bids Data", icon: Database },
+  { id: "activity", label: "Activity Log", icon: ClipboardList },
   { id: "commission", label: "Commission", icon: CircleDollarSign },
   { id: "subadmins", label: "Sub Admins", icon: ShieldCheck },
 ];
@@ -80,6 +82,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
   const [records, setRecords] = useState<MarketRecord[]>([]);
   const [transactions, setTransactions] = useState<BalanceTransaction[]>([]);
   const [detailedBids, setDetailedBids] = useState<any[]>([]);
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [subAdmins, setSubAdmins] = useState<any[]>([]);
 
   useEffect(() => {
@@ -270,6 +273,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
       setUsers(data.app_users || []); setMarkets(data.markets || []);
       setResults(data.results || []); setBids(data.bids || []); setWins(data.win_history || []);
       setRecords(data.market_bid_records || []); setTransactions(data.balance_transactions || []);
+      setActivityLogs(data.activity_logs || []);
       setWithdrawDetails(data.withdraw_details || []); setSubAdmins(data.sub_admins || []);
     }
 
@@ -366,6 +370,7 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
           )}
           {section === "bids" && <BidsModule items={displayDetailedBids} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "subadmins" && <SubAdminsModule items={subAdmins} onCreate={() => setModal({ kind: "sub_admin", mode: "create" })} onEdit={(item) => setModal({ kind: "sub_admin", mode: "edit", item })} onDelete={(id) => remove("sub_admins", id, "sub admin")} />}
+          {section === "activity" && <ActivityLogModule items={activityLogs} users={displayUsers} />}
         </div>
       </section>
 

@@ -1,6 +1,6 @@
 import { ReactNode, useState, useMemo } from "react";
 import { Users, ClipboardList, Coins, CircleDollarSign, Wallet, Landmark, UserPlus, Plus, ListFilter } from "lucide-react";
-import { AppUser, Bid, WinHistory, Market, MarketRecord, BalanceTransaction } from "@/lib/mockApi";
+import { AppUser, Bid, WinHistory, Market, MarketRecord, BalanceTransaction, ActivityLog } from "@/lib/mockApi";
 import { toast } from "sonner";
 import { money, Panel, DataTable, RowActions, Badge, formatDate, formatDateTime, getToday, SimpleList } from "../ui/AdminUI";
 
@@ -808,6 +808,79 @@ export function SubAdminOverviewModule({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+export function ActivityLogModule({ items, users }: { items: ActivityLog[], users: AppUser[] }) {
+  const [selectedUser, setSelectedUser] = useState<string>("all");
+  const [selectedAction, setSelectedAction] = useState<string>("all");
+
+  const filteredItems = useMemo(() => {
+    return items.filter(item => {
+      if (selectedUser !== "all" && String(item.app_user_id) !== selectedUser) return false;
+      if (selectedAction !== "all" && item.action_type !== selectedAction) return false;
+      return true;
+    });
+  }, [items, selectedUser, selectedAction]);
+
+  const uniqueActions = useMemo(() => Array.from(new Set(items.map(i => i.action_type))), [items]);
+
+  return (
+    <div className="space-y-6">
+      <Panel title="Activity Log Filters">
+        <div className="flex flex-wrap items-end gap-6">
+          <label className="field-label flex-1 min-w-[200px]">
+            Filter by User
+            <select
+              className="field-input w-full"
+              value={selectedUser}
+              onChange={(e) => setSelectedUser(e.target.value)}
+            >
+              <option value="all">All Users</option>
+              {users.map((u) => <option key={u.id} value={u.id}>{u.name} ({u.phone})</option>)}
+            </select>
+          </label>
+          <label className="field-label flex-1 min-w-[200px]">
+            Filter by Action Type
+            <select
+              className="field-input w-full"
+              value={selectedAction}
+              onChange={(e) => setSelectedAction(e.target.value)}
+            >
+              <option value="all">All Actions</option>
+              {uniqueActions.map((action) => <option key={action} value={action}>{action.replace("_", " ").toUpperCase()}</option>)}
+            </select>
+          </label>
+        </div>
+      </Panel>
+
+      <Panel title="Activity Logs" action={`${filteredItems.length} records`}>
+        <DataTable headers={["ID", "User", "Action", "Description", "Time"]}>
+          {filteredItems.length > 0 ? filteredItems.map((item) => {
+            const user = users.find(u => String(u.id) === String(item.app_user_id));
+            return (
+              <tr key={item.id}>
+                <td>{item.id}</td>
+                <td className="font-medium text-primary">{user ? user.name : (item.app_user_id || "—")}</td>
+                <td>
+                  <Badge tone="neutral">{item.action_type.replace("_", " ").toUpperCase()}</Badge>
+                </td>
+                <td className="max-w-md truncate" title={item.description}>{item.description}</td>
+                <td className="text-xs text-muted-foreground whitespace-nowrap">
+                  {formatDateTime(item.created_at)}
+                </td>
+              </tr>
+            );
+          }) : (
+            <tr>
+              <td colSpan={5} className="text-center py-8 text-muted-foreground">
+                No activity logs found.
+              </td>
+            </tr>
+          )}
+        </DataTable>
+      </Panel>
     </div>
   );
 }

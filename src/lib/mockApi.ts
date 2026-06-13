@@ -101,6 +101,17 @@ export type BalanceTransaction = {
   created_at: string;
 };
 
+export type ActivityLog = {
+  id: string;
+  app_user_id: string | null;
+  admin_id: string | null;
+  action_type: string;
+  description: string;
+  ip_address: string | null;
+  device_info: string | null;
+  created_at: string;
+};
+
 export type Session = { user: { id: string; email: string } } | null;
 
 
@@ -115,6 +126,7 @@ interface StorageData {
   win_history: WinHistory[];
   balance_transactions: BalanceTransaction[];
   market_bid_records: MarketRecord[];
+  activity_logs: ActivityLog[];
   session: Session;
 }
 
@@ -127,6 +139,7 @@ const initialData: StorageData = {
   win_history: [],
   balance_transactions: [],
   market_bid_records: [],
+  activity_logs: [],
   session: null,
 };
 
