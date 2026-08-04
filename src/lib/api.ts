@@ -5,7 +5,7 @@ const isLocal = typeof window !== "undefined" && (
   window.location.hostname === "127.0.0.1" ||
   window.location.hostname.startsWith("192.168.")
 );
-const API_BASE = isLocal ? "http://184.168.125.61" : "";
+const API_BASE = isLocal ? "http://203.161.57.212" : "";
 // const API_BASE = "http://localhost:8000";
 const api = axios.create({
   baseURL: API_BASE,

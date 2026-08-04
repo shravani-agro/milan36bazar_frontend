@@ -5,13 +5,13 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "http://184.168.125.61/api/:splat"
+  to = "http://203.161.57.212/api/:splat"
   status = 200
   force = true
 
 [[redirects]]
   from = "/auth/*"
-  to = "http://184.168.125.61/auth/:splat"
+  to = "http://203.161.57.212/auth/:splat"
   status = 200
   force = true
 
