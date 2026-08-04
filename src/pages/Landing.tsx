@@ -91,7 +91,7 @@ export default function Landing() {
       "name": "Milan 36 Bazar App",
       "operatingSystem": "Android",
       "applicationCategory": "GameApplication",
-      "downloadUrl": `${window.location.origin}/milan36bazaar.apk`,
+      "downloadUrl": "https://github.com/harryongit/k36b/releases/latest/download/milan36bazaar.apk",
       "offers": {
         "@type": "Offer",
         "price": "0.00",
@@ -294,7 +294,7 @@ export default function Landing() {
             {/* Quick Actions */}
             <div className="flex items-center gap-2 sm:gap-3">
               <a
-                href="/milan36bazaar.apk"
+                href="https://github.com/harryongit/k36b/releases/latest/download/milan36bazaar.apk"
                 download
                 className="inline-flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-slate-950 font-bold shadow-lg shadow-amber-500/10 hover:shadow-amber-500/25 transition-all duration-300 text-xs sm:text-sm active:scale-95"
               >
@@ -400,7 +400,7 @@ export default function Landing() {
             {/* Primary Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <a
-                href="/milan36bazaar.apk"
+                href="https://github.com/harryongit/k36b/releases/latest/download/milan36bazaar.apk"
                 download
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-600 hover:to-yellow-500 text-slate-950 font-extrabold text-base shadow-xl shadow-amber-500/10 hover:shadow-amber-500/30 hover:scale-[1.02] active:scale-95 transition-all duration-300"
               >
@@ -710,7 +710,7 @@ export default function Landing() {
 
                   {/* Action inside card */}
                   <a
-                    href="/milan36bazaar.apk"
+                    href="https://github.com/harryongit/k36b/releases/latest/download/milan36bazaar.apk"
                     download
                     className="w-full mt-4 py-2 px-4 rounded-xl border border-slate-800 bg-slate-950 text-slate-400 text-xs font-bold flex items-center justify-center gap-2 group-hover:bg-amber-500 group-hover:text-slate-950 group-hover:border-transparent transition-all duration-300 active:scale-98"
                   >
@@ -949,7 +949,7 @@ export default function Landing() {
 
           <div className="flex flex-col sm:flex-row gap-4 items-center shrink-0 w-full md:w-auto relative z-10">
             <a
-              href="/milan36bazaar.apk"
+              href="https://github.com/harryongit/k36b/releases/latest/download/milan36bazaar.apk"
               download
               className="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-slate-950 hover:bg-slate-900 text-white font-extrabold text-base shadow-xl transition-all duration-300 border border-slate-800 hover:border-amber-500/60 active:scale-95"
             >
@@ -1015,7 +1015,7 @@ export default function Landing() {
                   </Link>
                 </li>
                 <li>
-                  <a href="/milan36bazaar.apk" download className="hover:text-amber-400 transition-colors flex items-center gap-1.5">
+                  <a href="https://github.com/harryongit/k36b/releases/latest/download/milan36bazaar.apk" download className="hover:text-amber-400 transition-colors flex items-center gap-1.5">
                     <Download className="h-3 w-3" />
                     <span>Download App APK</span>
                   </a>
