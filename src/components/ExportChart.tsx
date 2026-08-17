@@ -132,11 +132,8 @@ function ChartExportTemplate({
             <h1 style={{ fontSize: "36px", fontWeight: "900", margin: "0", lineHeight: "1" }}>मिलन ३६ बाज़ार</h1>
             <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: "12px 0 0 0", textAlign: "left" }}>दिनांक : {currentExportDateDisplay}</h2>
           </div>
-          <div style={{ width: "65%", display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box", position: "relative" }}>
+          <div style={{ width: "65%", display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box" }}>
             <h1 style={{ fontSize: "48px", fontWeight: "900", margin: "0", letterSpacing: "2px" }}>MILAN 36 BAZAR</h1>
-            <div style={{ position: "absolute", bottom: 2, right: 2, fontSize: "8px", color: "red" }}>
-              DEBUG: M{markets.length} R{results.length} MAP{resultMap.size} D{dates.length}
-            </div>
           </div>
         </div>
 
@@ -250,9 +247,27 @@ export function ExportChartButton({
 }) {
   const [isExporting, setIsExporting] = React.useState(false);
 
-  const handleExport = () => {
+  const handleExport = async () => {
     setIsExporting(true);
-    downloadChartPDF(date, markets, results, () => {
+
+    let finalMarkets = markets;
+    let finalResults = results;
+
+    // Fetch perfectly fresh data from the dedicated FastAPI endpoint before creating PDF
+    try {
+      const res = await fetch("http://localhost:8000/api/get_pdf_results");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === "success" && data.markets && data.results) {
+          finalMarkets = data.markets;
+          finalResults = data.results;
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to fetch from FastAPI endpoint, falling back to React state", err);
+    }
+
+    downloadChartPDF(date, finalMarkets, finalResults, () => {
       setIsExporting(false);
     });
   };
