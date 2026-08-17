@@ -67,16 +67,16 @@ const formatDisplayDate = (d: Date) => {
 function timeStringToMinutes(timeStr: string): number {
   if (!timeStr) return -1;
   const t = String(timeStr).trim().toLowerCase();
-  
+
   const match = t.match(/(\d+):(\d+)/);
   if (!match) return -1;
-  
+
   let h = parseInt(match[1]);
   const m = parseInt(match[2]);
-  
+
   if (t.includes("pm") && h < 12) h += 12;
   if (t.includes("am") && h === 12) h = 0;
-  
+
   return h * 60 + m;
 }
 
@@ -142,60 +142,60 @@ function ChartExportTemplate({
           <table style={{ width: "100%", height: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
             <thead>
               <tr>
-                <th style={{ border: "1px solid #888", width: "50px", padding: "6px 0", fontSize: "12px", color: "red", backgroundColor: "#f9f9f9", verticalAlign: "middle" }}>date</th>
+                <th style={{ border: "1px solid #888", width: "50px", padding: "8px 0", fontSize: "12px", color: "red", backgroundColor: "#f9f9f9", verticalAlign: "middle" }}>date</th>
                 {timeCols.map((tc, idx) => (
-                  <th key={idx} style={{ border: "1px solid #888", padding: "6px 0", fontSize: "10px", textAlign: "center", color: "red", backgroundColor: "#f9f9f9", lineHeight: "1.2", verticalAlign: "middle" }}>
+                  <th key={idx} style={{ border: "1px solid #888", padding: "8px 0", fontSize: "10px", textAlign: "center", color: "red", backgroundColor: "#f9f9f9", lineHeight: "1.2", verticalAlign: "middle" }}>
                     <div style={{ paddingBottom: "3px" }}>{tc.displayTop}</div>
                     <div style={{ paddingBottom: "2px" }}>{tc.displayBottom}</div>
                   </th>
                 ))}
               </tr>
             </thead>
-          <tbody>
-            {dates.map((d, rowIdx) => {
-              const dateStr = formatDateLocal(d);
-              const isSunday = d.getDay() === 0;
-              const displayColor = isSunday ? "red" : "black";
+            <tbody>
+              {dates.map((d, rowIdx) => {
+                const dateStr = formatDateLocal(d);
+                const isSunday = d.getDay() === 0;
+                const displayColor = isSunday ? "red" : "black";
 
-              return (
-                <tr key={rowIdx}>
-                  <td style={{ border: "1px solid #888", textAlign: "center", verticalAlign: "middle", padding: "2px 0", color: displayColor, lineHeight: "1.2", fontSize: "12px", fontWeight: "bold" }}>
-                    <div>{formatDisplayDate(d)}</div>
-                    <div>{d.getFullYear()}</div>
-                  </td>
-                  {timeCols.map((tc, colIdx) => {
-                    const colMinutes = timeStringToMinutes(tc.timeStr);
-                    const result = resultMap.get(`${dateStr}_${colMinutes}`);
-                    
-                    const cellTime = new Date(d);
-                    cellTime.setHours(0, 0, 0, 0); // Ensure midnight
-                    cellTime.setHours(Math.floor(colMinutes / 60), colMinutes % 60, 0, 0);
-                    
-                    const isPast = cellTime <= today;
+                return (
+                  <tr key={rowIdx}>
+                    <td style={{ border: "1px solid #888", textAlign: "center", verticalAlign: "middle", padding: "2px 0", color: displayColor, lineHeight: "1.2", fontSize: "12px", fontWeight: "bold" }}>
+                      <div>{formatDisplayDate(d)}</div>
+                      <div>{d.getFullYear()}</div>
+                    </td>
+                    {timeCols.map((tc, colIdx) => {
+                      const colMinutes = timeStringToMinutes(tc.timeStr);
+                      const result = resultMap.get(`${dateStr}_${colMinutes}`);
 
-                    let openPana = "";
-                    let openDigit = "";
+                      const cellTime = new Date(d);
+                      cellTime.setHours(0, 0, 0, 0); // Ensure midnight
+                      cellTime.setHours(Math.floor(colMinutes / 60), colMinutes % 60, 0, 0);
 
-                    if (result) {
-                      openPana = result.open_pana || "***";
-                      openDigit = result.open_digit !== undefined && result.open_digit !== null ? String(result.open_digit) : "*";
-                    } else {
-                      if (isPast) {
-                        openPana = "***";
-                        openDigit = "*";
+                      const isPast = cellTime <= today;
+
+                      let openPana = "";
+                      let openDigit = "";
+
+                      if (result) {
+                        openPana = result.open_pana || "***";
+                        openDigit = result.open_digit !== undefined && result.open_digit !== null ? String(result.open_digit) : "*";
+                      } else {
+                        if (isPast) {
+                          openPana = "***";
+                          openDigit = "*";
+                        }
                       }
-                    }
 
-                    return (
-                      <td key={colIdx} style={{ border: "1px solid #888", textAlign: "center", verticalAlign: "middle", padding: "6px 0", lineHeight: "1.1" }}>
-                        <div style={{ fontSize: "14px", fontWeight: "bold", color: "black", letterSpacing: "1px" }}>{openPana}</div>
-                        <div style={{ fontSize: "15px", fontWeight: "bold", color: "black", marginTop: "2px" }}>{openDigit}</div>
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
+                      return (
+                        <td key={colIdx} style={{ border: "1px solid #888", textAlign: "center", verticalAlign: "middle", padding: "6px 0", lineHeight: "1.1" }}>
+                          <div style={{ fontSize: "16px", fontWeight: "bold", color: "black", letterSpacing: "1px" }}>{openPana}</div>
+                          <div style={{ fontSize: "17px", fontWeight: "bold", color: "black", marginTop: "2px" }}>{openDigit}</div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
