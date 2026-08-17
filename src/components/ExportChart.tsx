@@ -127,29 +127,33 @@ function ChartExportTemplate({
     >
       <div style={{ border: "2px solid #000", padding: "4px", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
         {/* Header */}
-        <div style={{ display: "flex", borderBottom: "2px solid #000", flexShrink: 0 }}>
+        <div style={{ display: "flex", borderBottom: "2px solid #000", height: "90px", flexShrink: 0 }}>
           <div style={{ width: "35%", borderRight: "2px solid #000", padding: "12px", textAlign: "center", boxSizing: "border-box" }}>
             <h1 style={{ fontSize: "36px", fontWeight: "900", margin: "0", lineHeight: "1" }}>मिलन ३६ बाज़ार</h1>
             <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: "12px 0 0 0", textAlign: "left" }}>दिनांक : {currentExportDateDisplay}</h2>
           </div>
-          <div style={{ width: "65%", display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box" }}>
+          <div style={{ width: "65%", display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box", position: "relative" }}>
             <h1 style={{ fontSize: "48px", fontWeight: "900", margin: "0", letterSpacing: "2px" }}>MILAN 36 BAZAR</h1>
+            <div style={{ position: "absolute", bottom: 2, right: 2, fontSize: "8px", color: "red" }}>
+              DEBUG: M{markets.length} R{results.length} MAP{resultMap.size} D{dates.length}
+            </div>
           </div>
         </div>
 
         {/* Table */}
-        <table style={{ width: "100%", height: "100%", borderCollapse: "collapse", tableLayout: "fixed", flexGrow: 1 }}>
-          <thead>
-            <tr>
-              <th style={{ border: "1px solid #888", width: "50px", padding: "4px 0", fontSize: "12px", color: "red", backgroundColor: "#f9f9f9" }}>date</th>
-              {timeCols.map((tc, idx) => (
-                <th key={idx} style={{ border: "1px solid #888", padding: "4px 0", fontSize: "10px", textAlign: "center", color: "red", backgroundColor: "#f9f9f9", lineHeight: "1.2" }}>
-                  <div>{tc.displayTop}</div>
-                  <div>{tc.displayBottom}</div>
-                </th>
-              ))}
-            </tr>
-          </thead>
+        <div style={{ height: "calc(100% - 90px)", width: "100%", overflow: "hidden" }}>
+          <table style={{ width: "100%", height: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
+            <thead>
+              <tr>
+                <th style={{ border: "1px solid #888", width: "50px", padding: "4px 0", fontSize: "12px", color: "red", backgroundColor: "#f9f9f9" }}>date</th>
+                {timeCols.map((tc, idx) => (
+                  <th key={idx} style={{ border: "1px solid #888", padding: "4px 0", fontSize: "10px", textAlign: "center", color: "red", backgroundColor: "#f9f9f9", lineHeight: "1.2" }}>
+                    <div>{tc.displayTop}</div>
+                    <div>{tc.displayBottom}</div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
           <tbody>
             {dates.map((d, rowIdx) => {
               const dateStr = formatDateLocal(d);
@@ -177,8 +181,9 @@ function ChartExportTemplate({
                 </tr>
               );
             })}
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
