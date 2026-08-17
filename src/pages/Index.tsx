@@ -321,13 +321,14 @@ function App({ isSubAdminPortal = false }: { isSubAdminPortal?: boolean }) {
         />
 
         <div className="p-4 lg:p-6">
-          {section === "dashboard" && <Dashboard users={displayUsers} bids={displayBids} wins={displayWins} markets={markets} analytics={analytics} setSection={setSection} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
+          {section === "dashboard" && <Dashboard users={displayUsers} bids={displayBids} wins={displayWins} markets={markets} results={results} analytics={analytics} setSection={setSection} filters={filters} updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))} />}
           {section === "overview" && (
             <SubAdminOverviewModule
               users={displayUsers}
               bids={displayBids}
               wins={displayWins}
               markets={markets}
+              results={results}
               filters={filters}
               updateFilter={(k, v) => setFilters(f => ({ ...f, [k]: v }))}
               assignedUserIds={assignedUserIds || undefined}

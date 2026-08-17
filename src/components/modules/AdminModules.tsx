@@ -1,6 +1,7 @@
 import { ReactNode, useState, useMemo } from "react";
 import { Users, ClipboardList, Coins, CircleDollarSign, Wallet, Landmark, UserPlus, Plus, ListFilter } from "lucide-react";
-import { AppUser, Bid, WinHistory, Market, MarketRecord, BalanceTransaction, ActivityLog } from "@/lib/mockApi";
+import { AppUser, Bid, WinHistory, Market, MarketRecord, BalanceTransaction, ActivityLog, ResultRecord } from "@/lib/mockApi";
+import { ExportChartButton } from "../ExportChart";
 import { toast } from "sonner";
 import { money, Panel, DataTable, RowActions, Badge, formatDate, formatDateTime, getToday, SimpleList } from "../ui/AdminUI";
 
@@ -56,9 +57,9 @@ export function Distribution({ counts }: { counts: { label: string; count: numbe
 }
 
 export function Dashboard({
-  users, bids, wins, markets, analytics, setSection, filters, updateFilter
+  users, bids, wins, markets, results, analytics, setSection, filters, updateFilter
 }: {
-  users: AppUser[]; bids: Bid[]; wins: WinHistory[]; markets: Market[];
+  users: AppUser[]; bids: Bid[]; wins: WinHistory[]; markets: Market[]; results: ResultRecord[];
   analytics: any; setSection: (s: any) => void; filters: any; updateFilter: (k: any, v: any) => void
 }) {
   const cards = [
@@ -82,6 +83,10 @@ export function Dashboard({
             <strong>{card.value}</strong>
           </button>
         ))}
+      </div>
+
+      <div className="flex justify-end mb-4">
+        <ExportChartButton date={filters.date || getToday()} markets={markets} results={results} />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
@@ -670,6 +675,7 @@ export function SubAdminOverviewModule({
   bids,
   wins,
   markets,
+  results,
   filters,
   updateFilter,
   assignedUserIds
@@ -678,6 +684,7 @@ export function SubAdminOverviewModule({
   bids: Bid[];
   wins: WinHistory[];
   markets: Market[];
+  results: ResultRecord[];
   filters: any;
   updateFilter: (k: string, v: string) => void;
   assignedUserIds?: string[];
@@ -745,6 +752,9 @@ export function SubAdminOverviewModule({
           </label>
         </div>
       </Panel>
+      <div className="flex justify-end mb-4">
+        <ExportChartButton date={selectedDate} markets={markets} results={results} />
+      </div>
 
       <div className="grid gap-6">
         {userStats.length > 0 ? (
