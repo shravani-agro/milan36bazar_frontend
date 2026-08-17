@@ -30,12 +30,16 @@ const generateTimeColumns = () => {
   let h = 11;
   let m = 0;
   for (let i = 0; i < 36; i++) {
-    const hh = h > 12 ? h - 12 : h;
-    const mm = m === 0 ? "00" : m;
+    const hh12 = h > 12 ? h - 12 : h;
+    const mmStr = m === 0 ? "00" : m;
     const ampm = h >= 12 && h < 24 ? "PM" : "AM";
-    const timeStr = `${hh}:${mm} ${ampm}`;
-    const displayTop = `${hh}:${mm}`;
+    const displayTop = `${hh12}:${mmStr}`;
     const displayBottom = ampm;
+
+    // Open time format in market is typically HH:mm in 24-hour
+    const h24Str = String(h).padStart(2, "0");
+    const timeStr = `${h24Str}:${mmStr}`;
+
     cols.push({ timeStr, displayTop, displayBottom });
 
     m += 15;
@@ -58,11 +62,6 @@ const formatDisplayDate = (d: Date) => {
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
   return `${day}/${month}`;
-};
-
-const formatDisplayDay = (d: Date) => {
-  const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-  return days[d.getDay()];
 };
 
 function ChartExportTemplate({
@@ -94,38 +93,41 @@ function ChartExportTemplate({
     }
   }
 
-  const startDateDisplay = dates.length > 0 ? `${String(dates[0].getDate()).padStart(2, '0')}/${String(dates[0].getMonth() + 1).padStart(2, '0')}/${dates[0].getFullYear()}` : "";
+  const today = new Date();
+  const currentExportDateDisplay = `${String(today.getDate()).padStart(2, '0')}/${String(today.getMonth() + 1).padStart(2, '0')}/${today.getFullYear()}`;
 
   return (
     <div
       id="chart-export-container"
       style={{
-        width: "1200px",
+        width: "1414px",
+        height: "1000px",
         padding: "20px",
+        boxSizing: "border-box",
         backgroundColor: "white",
         color: "black",
         fontFamily: "'Inter', sans-serif",
       }}
     >
-      <div style={{ border: "2px solid #000", padding: "4px" }}>
+      <div style={{ border: "2px solid #000", padding: "4px", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
         {/* Header */}
-        <div style={{ display: "flex", borderBottom: "2px solid #000" }}>
-          <div style={{ width: "35%", borderRight: "2px solid #000", padding: "10px", textAlign: "center" }}>
-            <h1 style={{ fontSize: "36px", fontWeight: "900", margin: "0", lineHeight: "1" }}>मिलन ३६ बाज़ार</h1>
-            <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: "8px 0 0 0", textAlign: "left" }}>दिनांक : {startDateDisplay}</h2>
+        <div style={{ display: "flex", borderBottom: "2px solid #000", height: "70px", flexShrink: 0 }}>
+          <div style={{ width: "35%", borderRight: "2px solid #000", padding: "10px", textAlign: "center", boxSizing: "border-box" }}>
+            <h1 style={{ fontSize: "32px", fontWeight: "900", margin: "0", lineHeight: "1" }}>मिलन ३६ बाज़ार</h1>
+            <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: "8px 0 0 0", textAlign: "left" }}>दिनांक : {currentExportDateDisplay}</h2>
           </div>
-          <div style={{ width: "65%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ width: "65%", display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box" }}>
             <h1 style={{ fontSize: "42px", fontWeight: "900", margin: "0", letterSpacing: "2px" }}>MILAN 36 BAZAR</h1>
           </div>
         </div>
 
         {/* Table */}
-        <table style={{ width: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
+        <table style={{ width: "100%", height: "100%", borderCollapse: "collapse", tableLayout: "fixed", flexGrow: 1 }}>
           <thead>
             <tr>
               <th style={{ border: "1px solid #888", width: "50px", padding: "4px 0", fontSize: "12px", color: "red", backgroundColor: "#f9f9f9" }}>date</th>
               {timeCols.map((tc, idx) => (
-                <th key={idx} style={{ border: "1px solid #888", padding: "4px 0", fontSize: "8px", textAlign: "center", color: "red", backgroundColor: "#f9f9f9", lineHeight: "1.2" }}>
+                <th key={idx} style={{ border: "1px solid #888", padding: "4px 0", fontSize: "10px", textAlign: "center", color: "red", backgroundColor: "#f9f9f9", lineHeight: "1.2" }}>
                   <div>{tc.displayTop}</div>
                   <div>{tc.displayBottom}</div>
                 </th>
@@ -140,9 +142,8 @@ function ChartExportTemplate({
 
               return (
                 <tr key={rowIdx}>
-                  <td style={{ border: "1px solid #888", textAlign: "center", padding: "4px 0", color: displayColor, lineHeight: "1.2", fontSize: "10px", fontWeight: "bold" }}>
+                  <td style={{ border: "1px solid #888", textAlign: "center", padding: "4px 0", color: displayColor, lineHeight: "1.2", fontSize: "12px", fontWeight: "bold" }}>
                     <div>{formatDisplayDate(d)}</div>
-                    <div>{formatDisplayDay(d)}</div>
                   </td>
                   {timeCols.map((tc, colIdx) => {
                     const result = resultMap.get(`${dateStr}_${tc.timeStr}`);
@@ -192,28 +193,19 @@ export const downloadChartPDF = async (
       const canvas = await html2canvas(element, {
         scale: 2, // higher resolution
         useCORS: true,
+        width: 1414,
+        height: 1000,
       });
 
-      const imgData = canvas.toDataURL("image/png");
+      const imgData = canvas.toDataURL("image/jpeg", 1.0);
       const pdf = new jsPDF({
         orientation: "landscape",
         unit: "mm",
         format: "a4",
       });
 
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      // Calculate ratio to fit width
-      const imgProps = pdf.getImageProperties(imgData);
-      const ratio = imgProps.width / imgProps.height;
-
-      // Fit width with margins
-      const margin = 10;
-      const printWidth = pdfWidth - margin * 2;
-      const printHeight = printWidth / ratio;
-
-      pdf.addImage(imgData, "PNG", margin, margin, printWidth, printHeight);
+      // A4 landscape is 297 x 210 mm
+      pdf.addImage(imgData, "JPEG", 0, 0, 297, 210);
       pdf.save("milan36-panel-chart.pdf");
     } catch (err) {
       console.error("Failed to generate PDF", err);
