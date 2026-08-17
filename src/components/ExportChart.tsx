@@ -142,11 +142,11 @@ function ChartExportTemplate({
           <table style={{ width: "100%", height: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
             <thead>
               <tr>
-                <th style={{ border: "1px solid #888", width: "50px", padding: "4px 0", fontSize: "12px", color: "red", backgroundColor: "#f9f9f9", verticalAlign: "middle" }}>date</th>
+                <th style={{ border: "1px solid #888", width: "50px", padding: "6px 0", fontSize: "12px", color: "red", backgroundColor: "#f9f9f9", verticalAlign: "middle" }}>date</th>
                 {timeCols.map((tc, idx) => (
-                  <th key={idx} style={{ border: "1px solid #888", padding: "4px 0", fontSize: "10px", textAlign: "center", color: "red", backgroundColor: "#f9f9f9", lineHeight: "1.2", verticalAlign: "middle" }}>
-                    <div style={{ paddingBottom: "2px" }}>{tc.displayTop}</div>
-                    <div>{tc.displayBottom}</div>
+                  <th key={idx} style={{ border: "1px solid #888", padding: "6px 0", fontSize: "10px", textAlign: "center", color: "red", backgroundColor: "#f9f9f9", lineHeight: "1.2", verticalAlign: "middle" }}>
+                    <div style={{ paddingBottom: "3px" }}>{tc.displayTop}</div>
+                    <div style={{ paddingBottom: "2px" }}>{tc.displayBottom}</div>
                   </th>
                 ))}
               </tr>
@@ -187,9 +187,9 @@ function ChartExportTemplate({
                     }
 
                     return (
-                      <td key={colIdx} style={{ border: "1px solid #888", textAlign: "center", verticalAlign: "middle", padding: "4px 0", lineHeight: "1.1" }}>
-                        <div style={{ fontSize: "12px", fontWeight: "bold", color: "black", letterSpacing: "1px" }}>{openPana}</div>
-                        <div style={{ fontSize: "13px", fontWeight: "bold", color: "black", marginTop: "2px" }}>{openDigit}</div>
+                      <td key={colIdx} style={{ border: "1px solid #888", textAlign: "center", verticalAlign: "middle", padding: "6px 0", lineHeight: "1.1" }}>
+                        <div style={{ fontSize: "14px", fontWeight: "bold", color: "black", letterSpacing: "1px" }}>{openPana}</div>
+                        <div style={{ fontSize: "15px", fontWeight: "bold", color: "black", marginTop: "2px" }}>{openDigit}</div>
                       </td>
                     );
                   })}
