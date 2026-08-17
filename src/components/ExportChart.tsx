@@ -64,6 +64,22 @@ const formatDisplayDate = (d: Date) => {
   return `${day}/${month}`;
 };
 
+function timeStringToMinutes(timeStr: string): number {
+  if (!timeStr) return -1;
+  const t = String(timeStr).trim().toLowerCase();
+  
+  const match = t.match(/(\d+):(\d+)/);
+  if (!match) return -1;
+  
+  let h = parseInt(match[1]);
+  const m = parseInt(match[2]);
+  
+  if (t.includes("pm") && h < 12) h += 12;
+  if (t.includes("am") && h === 12) h = 0;
+  
+  return h * 60 + m;
+}
+
 function ChartExportTemplate({
   baseDateStr,
   markets,
@@ -77,19 +93,19 @@ function ChartExportTemplate({
   const timeCols = generateTimeColumns();
 
   // Create a fast lookup map for results
-  // Key: `${dateStr}_${timeStr}`
+  // Key: `${dateStr}_${minutesSinceMidnight}`
   const resultMap = new Map<string, ResultRecord>();
 
-  // Map market id to its time
-  const marketTimeMap = new Map<string, string>();
+  // Map market id to its time in minutes
+  const marketTimeMap = new Map<string, number>();
   for (const m of markets) {
-    marketTimeMap.set(m.id, m.open_time);
+    marketTimeMap.set(String(m.id), timeStringToMinutes(m.open_time));
   }
 
   for (const r of results) {
-    const time = marketTimeMap.get(r.market_id);
-    if (time) {
-      resultMap.set(`${r.result_date}_${time}`, r);
+    const minutes = marketTimeMap.get(String(r.market_id));
+    if (minutes !== undefined && minutes !== -1) {
+      resultMap.set(`${r.result_date}_${minutes}`, r);
     }
   }
 
@@ -111,13 +127,13 @@ function ChartExportTemplate({
     >
       <div style={{ border: "2px solid #000", padding: "4px", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
         {/* Header */}
-        <div style={{ display: "flex", borderBottom: "2px solid #000", height: "70px", flexShrink: 0 }}>
-          <div style={{ width: "35%", borderRight: "2px solid #000", padding: "10px", textAlign: "center", boxSizing: "border-box" }}>
-            <h1 style={{ fontSize: "32px", fontWeight: "900", margin: "0", lineHeight: "1" }}>मिलन ३६ बाज़ार</h1>
-            <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: "8px 0 0 0", textAlign: "left" }}>दिनांक : {currentExportDateDisplay}</h2>
+        <div style={{ display: "flex", borderBottom: "2px solid #000", flexShrink: 0 }}>
+          <div style={{ width: "35%", borderRight: "2px solid #000", padding: "12px", textAlign: "center", boxSizing: "border-box" }}>
+            <h1 style={{ fontSize: "36px", fontWeight: "900", margin: "0", lineHeight: "1" }}>मिलन ३६ बाज़ार</h1>
+            <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: "12px 0 0 0", textAlign: "left" }}>दिनांक : {currentExportDateDisplay}</h2>
           </div>
           <div style={{ width: "65%", display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box" }}>
-            <h1 style={{ fontSize: "42px", fontWeight: "900", margin: "0", letterSpacing: "2px" }}>MILAN 36 BAZAR</h1>
+            <h1 style={{ fontSize: "48px", fontWeight: "900", margin: "0", letterSpacing: "2px" }}>MILAN 36 BAZAR</h1>
           </div>
         </div>
 
@@ -146,7 +162,8 @@ function ChartExportTemplate({
                     <div>{formatDisplayDate(d)}</div>
                   </td>
                   {timeCols.map((tc, colIdx) => {
-                    const result = resultMap.get(`${dateStr}_${tc.timeStr}`);
+                    const colMinutes = timeStringToMinutes(tc.timeStr);
+                    const result = resultMap.get(`${dateStr}_${colMinutes}`);
                     const openPana = result?.open_pana || "***";
                     const openDigit = result?.open_digit !== undefined && result?.open_digit !== null ? result.open_digit : "*";
 
