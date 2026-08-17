@@ -128,12 +128,12 @@ function ChartExportTemplate({
       <div style={{ border: "2px solid #000", padding: "4px", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
         {/* Header */}
         <div style={{ display: "flex", borderBottom: "2px solid #000", height: "90px", flexShrink: 0 }}>
-          <div style={{ width: "35%", borderRight: "2px solid #000", padding: "12px", textAlign: "center", boxSizing: "border-box" }}>
-            <h1 style={{ fontSize: "36px", fontWeight: "900", margin: "0", lineHeight: "1" }}>मिलन ३६ बाज़ार</h1>
-            <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: "12px 0 0 0", textAlign: "left" }}>दिनांक : {currentExportDateDisplay}</h2>
+          <div style={{ width: "35%", borderRight: "2px solid #000", padding: "0 12px", display: "flex", flexDirection: "column", justifyContent: "center", boxSizing: "border-box" }}>
+            <h1 style={{ fontSize: "36px", fontWeight: "900", margin: "0", lineHeight: "1", textAlign: "center" }}>मिलन ३६ बाज़ार</h1>
+            <h2 style={{ fontSize: "16px", fontWeight: "bold", margin: "8px 0 0 0", textAlign: "left" }}>दिनांक : {currentExportDateDisplay}</h2>
           </div>
           <div style={{ width: "65%", display: "flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box" }}>
-            <h1 style={{ fontSize: "48px", fontWeight: "900", margin: "0", letterSpacing: "2px" }}>MILAN 36 BAZAR</h1>
+            <h1 style={{ fontSize: "48px", fontWeight: "900", margin: "0", letterSpacing: "2px", lineHeight: "1" }}>MILAN 36 BAZAR</h1>
           </div>
         </div>
 
@@ -142,9 +142,9 @@ function ChartExportTemplate({
           <table style={{ width: "100%", height: "100%", borderCollapse: "collapse", tableLayout: "fixed" }}>
             <thead>
               <tr>
-                <th style={{ border: "1px solid #888", width: "50px", padding: "4px 0", fontSize: "12px", color: "red", backgroundColor: "#f9f9f9" }}>date</th>
+                <th style={{ border: "1px solid #888", width: "50px", padding: "2px 0", fontSize: "12px", color: "red", backgroundColor: "#f9f9f9", verticalAlign: "middle" }}>date</th>
                 {timeCols.map((tc, idx) => (
-                  <th key={idx} style={{ border: "1px solid #888", padding: "4px 0", fontSize: "10px", textAlign: "center", color: "red", backgroundColor: "#f9f9f9", lineHeight: "1.2" }}>
+                  <th key={idx} style={{ border: "1px solid #888", padding: "2px 0", fontSize: "10px", textAlign: "center", color: "red", backgroundColor: "#f9f9f9", lineHeight: "1.2", verticalAlign: "middle" }}>
                     <div>{tc.displayTop}</div>
                     <div>{tc.displayBottom}</div>
                   </th>
@@ -159,17 +159,36 @@ function ChartExportTemplate({
 
               return (
                 <tr key={rowIdx}>
-                  <td style={{ border: "1px solid #888", textAlign: "center", padding: "4px 0", color: displayColor, lineHeight: "1.2", fontSize: "12px", fontWeight: "bold" }}>
+                  <td style={{ border: "1px solid #888", textAlign: "center", verticalAlign: "middle", padding: "2px 0", color: displayColor, lineHeight: "1.2", fontSize: "12px", fontWeight: "bold" }}>
                     <div>{formatDisplayDate(d)}</div>
+                    <div>{d.getFullYear()}</div>
                   </td>
                   {timeCols.map((tc, colIdx) => {
                     const colMinutes = timeStringToMinutes(tc.timeStr);
                     const result = resultMap.get(`${dateStr}_${colMinutes}`);
-                    const openPana = result?.open_pana || "***";
-                    const openDigit = result?.open_digit !== undefined && result?.open_digit !== null ? result.open_digit : "*";
+                    
+                    const cellTime = new Date(d);
+                    cellTime.setHours(0, 0, 0, 0); // Ensure midnight
+                    cellTime.setHours(Math.floor(colMinutes / 60), colMinutes % 60, 0, 0);
+                    
+                    const isPast = cellTime <= today;
+                    const isSundayAfter2PM = isSunday && colMinutes > 14 * 60;
+
+                    let openPana = "";
+                    let openDigit = "";
+
+                    if (result) {
+                      openPana = result.open_pana || "***";
+                      openDigit = result.open_digit !== undefined && result.open_digit !== null ? String(result.open_digit) : "*";
+                    } else {
+                      if (isSundayAfter2PM || isPast) {
+                        openPana = "***";
+                        openDigit = "*";
+                      }
+                    }
 
                     return (
-                      <td key={colIdx} style={{ border: "1px solid #888", textAlign: "center", padding: "2px 0", lineHeight: "1.1" }}>
+                      <td key={colIdx} style={{ border: "1px solid #888", textAlign: "center", verticalAlign: "middle", padding: "2px 0", lineHeight: "1.1" }}>
                         <div style={{ fontSize: "11px", fontWeight: "bold", color: "black", letterSpacing: "1px" }}>{openPana}</div>
                         <div style={{ fontSize: "11px", fontWeight: "bold", color: "black", marginTop: "2px" }}>{openDigit}</div>
                       </td>
